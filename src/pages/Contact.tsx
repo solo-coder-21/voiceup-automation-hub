@@ -4,7 +4,6 @@ import { Mail, Phone, MapPin, Send } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
-import { useToast } from '@/hooks/use-toast';
 import Navbar from '@/components/Navbar';
 import Footer from '@/components/Footer';
 
@@ -14,29 +13,11 @@ const Contact = () => {
     email: '',
     message: ''
   });
-  const { toast } = useToast();
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    
-    // Basic validation
-    if (!formData.name || !formData.email || !formData.message) {
-      toast({
-        title: "Missing Information",
-        description: "Please fill in all required fields.",
-        variant: "destructive",
-      });
-      return;
-    }
-
-    // Simulate form submission
-    toast({
-      title: "Message Sent!",
-      description: "Thank you for contacting VoiceUp. We'll get back to you soon.",
-    });
-
-    // Reset form
-    setFormData({ name: '', email: '', message: '' });
+    console.log('Form submitted:', formData);
+    // Handle form submission here
   };
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
@@ -51,80 +32,86 @@ const Contact = () => {
       <Navbar />
       
       {/* Hero Section */}
-      <section className="pt-24 pb-16 bg-gradient-to-br from-voiceup-navy via-voiceup-periwinkle to-voiceup-skyblue">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center text-white">
+      <section className="pt-24 pb-16 bg-gradient-to-br from-voiceup-navy via-voiceup-periwinkle to-voiceup-skyblue relative overflow-hidden">
+        <div className="absolute inset-0">
+          <img 
+            src="https://images.unsplash.com/photo-1516321318423-f06f85e504b3?w=1920&h=600&fit=crop" 
+            alt="Contact Hero" 
+            className="w-full h-full object-cover opacity-20"
+          />
+        </div>
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center text-white relative z-10">
           <h1 className="text-5xl lg:text-6xl font-bold mb-6 animate-fade-in">
-            Book a Demo
+            Get In Touch
           </h1>
           <p className="text-xl lg:text-2xl mb-8 max-w-3xl mx-auto font-light animate-fade-in" style={{animationDelay: '0.2s'}}>
-            Ready to transform your contact center with AI-powered voice automation? Let's talk.
+            Ready to transform your contact center? Let's discuss how VoiceUp can revolutionize your operations.
           </p>
         </div>
       </section>
 
       {/* Contact Section */}
-      <section className="py-20">
+      <section className="py-20 bg-gradient-to-br from-gray-50 to-white">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="grid lg:grid-cols-2 gap-16">
+          <div className="grid lg:grid-cols-2 gap-16 items-start">
             {/* Contact Form */}
             <div className="bg-white rounded-3xl shadow-2xl p-8 lg:p-12">
               <h2 className="text-3xl font-bold text-voiceup-navy mb-8">
-                Get in Touch
+                Send Us a Message
               </h2>
               
               <form onSubmit={handleSubmit} className="space-y-6">
                 <div>
-                  <label htmlFor="name" className="block text-sm font-medium text-gray-700 mb-2">
-                    Full Name *
+                  <label htmlFor="name" className="block text-sm font-semibold text-voiceup-navy mb-2">
+                    Name
                   </label>
                   <Input
                     id="name"
                     name="name"
                     type="text"
+                    required
                     value={formData.name}
                     onChange={handleChange}
-                    placeholder="Enter your full name"
-                    className="w-full rounded-xl border-gray-300 focus:border-voiceup-skyblue focus:ring-voiceup-skyblue"
-                    required
+                    className="w-full px-4 py-3 border-2 border-gray-200 rounded-xl focus:border-voiceup-skyblue focus:ring-0 transition-colors"
+                    placeholder="Your full name"
                   />
                 </div>
 
                 <div>
-                  <label htmlFor="email" className="block text-sm font-medium text-gray-700 mb-2">
-                    Email Address *
+                  <label htmlFor="email" className="block text-sm font-semibold text-voiceup-navy mb-2">
+                    Email
                   </label>
                   <Input
                     id="email"
                     name="email"
                     type="email"
+                    required
                     value={formData.email}
                     onChange={handleChange}
-                    placeholder="Enter your email address"
-                    className="w-full rounded-xl border-gray-300 focus:border-voiceup-skyblue focus:ring-voiceup-skyblue"
-                    required
+                    className="w-full px-4 py-3 border-2 border-gray-200 rounded-xl focus:border-voiceup-skyblue focus:ring-0 transition-colors"
+                    placeholder="your.email@company.com"
                   />
                 </div>
 
                 <div>
-                  <label htmlFor="message" className="block text-sm font-medium text-gray-700 mb-2">
-                    Message *
+                  <label htmlFor="message" className="block text-sm font-semibold text-voiceup-navy mb-2">
+                    Message
                   </label>
                   <Textarea
                     id="message"
                     name="message"
+                    required
                     value={formData.message}
                     onChange={handleChange}
-                    placeholder="Tell us about your contact center needs and how we can help..."
                     rows={6}
-                    className="w-full rounded-xl border-gray-300 focus:border-voiceup-skyblue focus:ring-voiceup-skyblue resize-none"
-                    required
+                    className="w-full px-4 py-3 border-2 border-gray-200 rounded-xl focus:border-voiceup-skyblue focus:ring-0 transition-colors resize-none"
+                    placeholder="Tell us about your project and requirements..."
                   />
                 </div>
 
-                <Button 
+                <Button
                   type="submit"
-                  size="lg"
-                  className="w-full bg-voiceup-skyblue hover:bg-voiceup-periwinkle text-white rounded-xl py-4 flex items-center justify-center space-x-2"
+                  className="w-full bg-voiceup-skyblue hover:bg-voiceup-periwinkle text-white py-4 px-8 rounded-xl font-semibold text-lg transition-all duration-300 hover:shadow-lg flex items-center justify-center space-x-2"
                 >
                   <Send className="h-5 w-5" />
                   <span>Send Message</span>
@@ -134,90 +121,56 @@ const Contact = () => {
 
             {/* Contact Information */}
             <div className="space-y-8">
-              {/* Contact Details */}
-              <div className="bg-gradient-to-br from-voiceup-blush to-white rounded-3xl p-8 lg:p-12">
-                <h3 className="text-2xl font-bold text-voiceup-navy mb-8">
+              <div>
+                <h2 className="text-3xl font-bold text-voiceup-navy mb-8">
                   Contact Information
-                </h3>
-                
-                <div className="space-y-6">
-                  <div className="flex items-start space-x-4">
-                    <div className="p-3 bg-voiceup-skyblue rounded-xl text-white">
-                      <Mail className="h-6 w-6" />
-                    </div>
-                    <div>
-                      <h4 className="font-semibold text-voiceup-navy mb-1">Email</h4>
-                      <p className="text-gray-600">contact@voiceup.ai</p>
-                      <p className="text-gray-600">sales@voiceup.ai</p>
-                    </div>
-                  </div>
+                </h2>
+                <p className="text-gray-600 text-lg leading-relaxed mb-8">
+                  We're here to help you transform your contact center operations. 
+                  Reach out to us through any of the channels below.
+                </p>
+              </div>
 
-                  <div className="flex items-start space-x-4">
-                    <div className="p-3 bg-voiceup-periwinkle rounded-xl text-white">
-                      <Phone className="h-6 w-6" />
-                    </div>
-                    <div>
-                      <h4 className="font-semibold text-voiceup-navy mb-1">Phone</h4>
-                      <p className="text-gray-600">+1 (555) 123-4567</p>
-                      <p className="text-gray-600">+1 (555) 987-6543</p>
-                    </div>
+              <div className="space-y-6">
+                <div className="flex items-center space-x-4 p-6 bg-white rounded-2xl shadow-lg hover:shadow-xl transition-shadow duration-300">
+                  <div className="p-3 bg-voiceup-skyblue rounded-xl">
+                    <Mail className="h-6 w-6 text-white" />
                   </div>
+                  <div>
+                    <h3 className="text-lg font-semibold text-voiceup-navy">Email</h3>
+                    <p className="text-gray-600">contact@voiceup.ai</p>
+                  </div>
+                </div>
 
-                  <div className="flex items-start space-x-4">
-                    <div className="p-3 bg-voiceup-navy rounded-xl text-white">
-                      <MapPin className="h-6 w-6" />
-                    </div>
-                    <div>
-                      <h4 className="font-semibold text-voiceup-navy mb-1">Address</h4>
-                      <p className="text-gray-600">
-                        123 Innovation Drive<br />
-                        San Francisco, CA 94105<br />
-                        United States
-                      </p>
-                    </div>
+                <div className="flex items-center space-x-4 p-6 bg-white rounded-2xl shadow-lg hover:shadow-xl transition-shadow duration-300">
+                  <div className="p-3 bg-voiceup-periwinkle rounded-xl">
+                    <Phone className="h-6 w-6 text-white" />
+                  </div>
+                  <div>
+                    <h3 className="text-lg font-semibold text-voiceup-navy">Phone</h3>
+                    <p className="text-gray-600">+1 (555) 123-4567</p>
+                  </div>
+                </div>
+
+                <div className="flex items-center space-x-4 p-6 bg-white rounded-2xl shadow-lg hover:shadow-xl transition-shadow duration-300">
+                  <div className="p-3 bg-voiceup-navy rounded-xl">
+                    <MapPin className="h-6 w-6 text-white" />
+                  </div>
+                  <div>
+                    <h3 className="text-lg font-semibold text-voiceup-navy">Address</h3>
+                    <p className="text-gray-600">San Francisco, CA</p>
                   </div>
                 </div>
               </div>
 
               {/* Office Hours */}
-              <div className="bg-white rounded-3xl shadow-xl p-8">
-                <h3 className="text-2xl font-bold text-voiceup-navy mb-6">
-                  Office Hours
-                </h3>
-                <div className="space-y-3">
-                  <div className="flex justify-between">
-                    <span className="text-gray-600">Monday - Friday</span>
-                    <span className="font-semibold text-voiceup-navy">9:00 AM - 6:00 PM PST</span>
-                  </div>
-                  <div className="flex justify-between">
-                    <span className="text-gray-600">Saturday</span>
-                    <span className="font-semibold text-voiceup-navy">10:00 AM - 2:00 PM PST</span>
-                  </div>
-                  <div className="flex justify-between">
-                    <span className="text-gray-600">Sunday</span>
-                    <span className="font-semibold text-voiceup-navy">Closed</span>
-                  </div>
+              <div className="bg-gradient-to-br from-voiceup-blush to-voiceup-lavender p-8 rounded-2xl">
+                <h3 className="text-xl font-bold text-voiceup-navy mb-4">Office Hours</h3>
+                <div className="space-y-2 text-voiceup-navy">
+                  <p><span className="font-semibold">Monday - Friday:</span> 9:00 AM - 6:00 PM PST</p>
+                  <p><span className="font-semibold">Saturday:</span> 10:00 AM - 4:00 PM PST</p>
+                  <p><span className="font-semibold">Sunday:</span> Closed</p>
                 </div>
-                
-                <div className="mt-6 p-4 bg-voiceup-blush rounded-xl">
-                  <p className="text-sm text-voiceup-navy">
-                    <strong>24/7 Support Available</strong> for enterprise customers with active contracts.
-                  </p>
-                </div>
-              </div>
-
-              {/* Google Maps Placeholder */}
-              <div className="bg-gray-100 rounded-3xl overflow-hidden shadow-xl h-64">
-                <iframe
-                  src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3154.024665509447!2d-122.39492468468246!3d37.78808797975632!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x8085807c4a8aef67%3A0x8067a9b01b9e4c3e!2sSan%20Francisco%2C%20CA!5e0!3m2!1sen!2sus!4v1635959545845!5m2!1sen!2sus"
-                  width="100%"
-                  height="100%"
-                  style={{ border: 0 }}
-                  allowFullScreen
-                  loading="lazy"
-                  referrerPolicy="no-referrer-when-downgrade"
-                  title="VoiceUp Office Location"
-                ></iframe>
               </div>
             </div>
           </div>

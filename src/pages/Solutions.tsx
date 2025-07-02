@@ -1,114 +1,124 @@
 
-import React from 'react';
+import React, { useState } from 'react';
 import { Link } from 'react-router-dom';
-import { Mic, PhoneCall, BarChart3, Users, Bot, Zap, DollarSign, Shield, TrendingUp, Target, Globe } from 'lucide-react';
+import { Mic, PhoneCall, BarChart3, Users, Bot, Zap, ChevronLeft, ChevronRight, DollarSign, Shield, TrendingUp, Target, Globe, Database, Clock, CheckCircle, ArrowRight, Play } from 'lucide-react';
 import { Button } from '@/components/ui/button';
+import { Carousel, CarouselContent, CarouselItem, CarouselNext, CarouselPrevious } from '@/components/ui/carousel';
 import Navbar from '@/components/Navbar';
 import Footer from '@/components/Footer';
 
 const Solutions = () => {
-  const solutions = [
+  const [activeAnalyticsCard, setActiveAnalyticsCard] = useState(0);
+  
+  const bridgeFeatures = [
     {
-      title: "VoiceUp Bridge",
-      description: "A platform for seamless communication integration with AI platforms",
-      icon: <Zap className="h-12 w-12" />,
-      features: ["Real-time integration", "Multi-platform support", "Scalable architecture"],
-      image: "https://images.unsplash.com/photo-1558494949-ef010cbdcc31?w=400&h=300&fit=crop"
+      title: "Seamless AI Connection",
+      description: "Connect your traditional Voice Contact Center to preferred AI providers for enhanced services.",
+      image: "https://images.unsplash.com/photo-1558494949-ef010cbdcc31?w=500&h=300&fit=crop"
     },
     {
-      title: "Recording, Transcription and Auditing",
-      description: "High-quality audio recording with transcription services. Auditing for compliance.",
-      icon: <PhoneCall className="h-12 w-12" />,
-      features: ["HD recording quality", "99.5% transcription accuracy", "Compliance tracking"],
-      image: "https://images.unsplash.com/photo-1516321318423-f06f85e504b3?w=400&h=300&fit=crop"
+      title: "Flexible Integration Options",
+      description: "Choose between on-premise integrations or utilize our cloud services for convenience.",
+      image: "https://images.unsplash.com/photo-1451187580459-43490279c0fa?w=500&h=300&fit=crop"
     },
     {
-      title: "Speech Recognition",
-      description: "Advanced speech recognition technology for various applications.",
-      icon: <Mic className="h-12 w-12" />,
-      features: ["20+ languages", "Noise cancellation", "Custom vocabulary"],
-      image: "https://images.unsplash.com/photo-1589254065878-42c9da997008?w=400&h=300&fit=crop"
+      title: "User-Friendly Setup",
+      description: "Experience easy and secure setup with just a few simple steps and standard security measures.",
+      image: "https://images.unsplash.com/photo-1460925895917-afdab827c52f?w=500&h=300&fit=crop"
     },
     {
-      title: "Analytics and Insights",
-      description: "Data analytics tools for actionable insights.",
-      icon: <BarChart3 className="h-12 w-12" />,
-      features: ["Real-time dashboards", "Predictive analytics", "Custom reports"],
-      image: "https://images.unsplash.com/photo-1551288049-bebda4e38f71?w=400&h=300&fit=crop"
+      title: "Robust Security Features",
+      description: "All integrations come with standard encryption and authentication models to ensure data safety.",
+      image: "https://images.unsplash.com/photo-1563206767-5b18f218e8de?w=500&h=300&fit=crop"
     },
     {
-      title: "Agent Desktop Plugin",
-      description: "Software Development Kit for easy integration in Agent Desktop.",
-      icon: <Users className="h-12 w-12" />,
-      features: ["Easy integration", "Real-time assistance", "Multi-language display"],
-      image: "https://images.unsplash.com/photo-1581091226825-a6a2a5aee158?w=400&h=300&fit=crop"
+      title: "Real-Time Transcription Services",
+      description: "Leverage real-time transcription services from AI providers like Open AI or Google.",
+      image: "https://images.unsplash.com/photo-1589254065878-42c9da997008?w=500&h=300&fit=crop"
     },
     {
-      title: "VoiceBot & ChatBot",
-      description: "AI-driven conversational bot feature for voice and chat.",
-      icon: <Bot className="h-12 w-12" />,
-      features: ["24/7 availability", "Natural conversations", "Intent recognition"],
-      image: "https://images.unsplash.com/photo-1485827404703-89b55fcc595e?w=400&h=300&fit=crop"
+      title: "Advanced BOT Services",
+      description: "Integrate with Cloud Based Bot services such as OpenAI RealTime and Google Gemini.",
+      image: "https://images.unsplash.com/photo-1485827404703-89b55fcc595e?w=500&h=300&fit=crop"
+    }
+  ];
+
+  const recordingFeatures = [
+    {
+      title: "Scalable Recording Solutions",
+      description: "VoiceUp offers a low-cost call recording solution scalable from 20 to over 3000 calls, available on-premise and cloud.",
+      icon: <TrendingUp className="h-8 w-8" />
+    },
+    {
+      title: "Controlled Access to Recordings",
+      description: "Role-Based access allows users to playback and download recordings securely.",
+      icon: <Shield className="h-8 w-8" />
+    },
+    {
+      title: "Cost-Effective Option",
+      description: "VoiceUp provides a fraction of the cost compared to leading vendors in the call recording market.",
+      icon: <DollarSign className="h-8 w-8" />
+    },
+    {
+      title: "Individual Stream Recording",
+      description: "Ability to record individual audio streams separately for enhanced clarity and analysis.",
+      icon: <Mic className="h-8 w-8" />
+    },
+    {
+      title: "Diverse Integration Options",
+      description: "Supports SIPREC and CTI based integrations with major vendors like Avaya, Cisco, and more for contact centers.",
+      icon: <Zap className="h-8 w-8" />
+    },
+    {
+      title: "Flexible Deployment Options",
+      description: "VoiceUp supports both SaaS and on-premises deployments to suit various business needs.",
+      icon: <Database className="h-8 w-8" />
+    },
+    {
+      title: "Multilingual Transcription",
+      description: "Transcribe recorded calls in any language, catering to diverse user needs.",
+      icon: <Globe className="h-8 w-8" />
+    },
+    {
+      title: "AI Options",
+      description: "Use VoiceUp's cost effective AI for transcription or bring your own.",
+      icon: <Bot className="h-8 w-8" />
     }
   ];
 
   const analyticsFeatures = [
     {
+      title: "AI Powered Analytics",
+      description: "Based on Recordings and Transcriptions: Sentiments, Customer Satisfaction, Trends, Compliance phrases, etc.",
+      image: "https://images.unsplash.com/photo-1551288049-bebda4e38f71?w=500&h=300&fit=crop"
+    },
+    {
       title: "Operational Metrics",
-      description: "Tracks agent performance and resolution rates for efficiency.",
-      image: "https://images.unsplash.com/photo-1460925895917-afdab827c52f?w=500&h=300&fit=crop",
-      isImageLeft: true
+      description: "Agent Performance and Productivity, Key Focus Areas, Resolution Rates, New Leads.",
+      image: "https://images.unsplash.com/photo-1460925895917-afdab827c52f?w=500&h=300&fit=crop"
     },
     {
-      title: "Roles-Based Representation",
-      description: "Provides customized dashboards for different user roles.",
-      image: "https://images.unsplash.com/photo-1553028826-f4804151e596?w=500&h=300&fit=crop",
-      isImageLeft: false
-    },
-    {
-      title: "AI-Powered Analytics",
-      description: "Utilizes AI to analyze sentiments and trends from recordings.",
-      image: "https://images.unsplash.com/photo-1551288049-bebda4e38f71?w=500&h=300&fit=crop",
-      isImageLeft: true
+      title: "Roles Based Representation",
+      description: "Customized Dashboards for agents, supervisors and executives.",
+      image: "https://images.unsplash.com/photo-1553028826-f4804151e596?w=500&h=300&fit=crop"
     },
     {
       title: "Flexibility",
-      description: "Allows integration with various recording platforms.",
-      image: "https://images.unsplash.com/photo-1558494949-ef010cbdcc31?w=500&h=300&fit=crop",
-      isImageLeft: false
+      description: "Upload your recordings from other platforms or work with VoiceUp Recording Transcription solution.",
+      image: "https://images.unsplash.com/photo-1518770660439-4636190af475?w=500&h=300&fit=crop"
     }
   ];
 
-  const valueProps = [
+  const agentDesktopFeatures = [
     {
-      icon: <Zap className="h-8 w-8" />,
-      title: "Rapid Implementation",
-      description: "Quick setup and deployment with minimal disruption."
+      title: "SDK for Agent Desktop",
+      description: "Get Real-Time Transcriptions and Assists to your existing Agent Desktop",
+      image: "https://images.unsplash.com/photo-1581091226825-a6a2a5aee158?w=500&h=300&fit=crop"
     },
     {
-      icon: <DollarSign className="h-8 w-8" />,
-      title: "Cost Effective",
-      description: "Reduce operational costs while improving service quality."
-    },
-    {
-      icon: <Shield className="h-8 w-8" />,
-      title: "Enterprise Security",
-      description: "Bank-grade security with compliance to standards."
-    },
-    {
-      icon: <TrendingUp className="h-8 w-8" />,
-      title: "Scalable Solution",
-      description: "Grows from small teams to enterprise scale."
-    },
-    {
-      icon: <Target className="h-8 w-8" />,
-      title: "Improved Accuracy",
-      description: "AI-powered transcription and analysis with 99.5% accuracy rates."
-    },
-    {
-      icon: <Globe className="h-8 w-8" />,
-      title: "Global Support",
-      description: "Multi-language support and 24/7 customer service."
+      title: "Reinforced Learning",
+      description: "Continuous Learning from Desktop interactions for Bots.",
+      image: "https://images.unsplash.com/photo-1552664730-d307ca884978?w=500&h=300&fit=crop"
     }
   ];
 
@@ -117,8 +127,15 @@ const Solutions = () => {
       <Navbar />
       
       {/* Hero Section */}
-      <section className="pt-24 pb-16 bg-gradient-to-br from-voiceup-navy via-voiceup-periwinkle to-voiceup-skyblue">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center text-white">
+      <section className="pt-24 pb-16 bg-gradient-to-br from-voiceup-navy via-voiceup-periwinkle to-voiceup-skyblue relative overflow-hidden">
+        <div className="absolute inset-0">
+          <img 
+            src="https://images.unsplash.com/photo-1518770660439-4636190af475?w=1920&h=1080&fit=crop" 
+            alt="Solutions Hero" 
+            className="w-full h-full object-cover opacity-20"
+          />
+        </div>
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center text-white relative z-10">
           <h1 className="text-5xl lg:text-6xl font-bold mb-6 animate-fade-in">
             VoiceUp Solutions
           </h1>
@@ -136,111 +153,158 @@ const Solutions = () => {
         </div>
       </section>
 
-      {/* Solutions Overview */}
-      <section className="py-20">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="text-center mb-16">
-            <h2 className="text-4xl lg:text-5xl font-bold text-voiceup-navy mb-4">
-              Overview of VoiceUp Offerings
-            </h2>
-            <p className="text-xl text-gray-600 max-w-3xl mx-auto">
-              Six comprehensive solutions to meet all your voice automation needs
-            </p>
-          </div>
-
-          <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
-            {solutions.map((solution, index) => (
-              <div 
-                key={index}
-                className="bg-white rounded-3xl shadow-lg hover:shadow-2xl transition-all duration-300 hover:-translate-y-2 overflow-hidden group"
-              >
-                <div className="relative h-48 overflow-hidden">
-                  <img 
-                    src={solution.image} 
-                    alt={solution.title}
-                    className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-300"
-                  />
-                  <div className="absolute inset-0 bg-gradient-to-t from-voiceup-navy/80 to-transparent"></div>
-                  <div className="absolute bottom-4 left-4 text-white">
-                    <div className="p-3 bg-white/20 rounded-xl backdrop-blur-sm inline-block">
-                      {solution.icon}
-                    </div>
-                  </div>
-                </div>
-                
-                <div className="p-8">
-                  <h3 className="text-xl font-semibold text-voiceup-navy mb-3">
-                    {solution.title}
-                  </h3>
-                  <p className="text-gray-600 mb-4 leading-relaxed">
-                    {solution.description}
-                  </p>
-                  <ul className="space-y-2 mb-6">
-                    {solution.features.map((feature, idx) => (
-                      <li key={idx} className="flex items-center text-sm text-gray-500">
-                        <div className="w-2 h-2 bg-voiceup-skyblue rounded-full mr-2"></div>
-                        {feature}
-                      </li>
-                    ))}
-                  </ul>
-                  <Button 
-                    asChild
-                    variant="outline"
-                    className="w-full border-voiceup-skyblue text-voiceup-skyblue hover:bg-voiceup-skyblue hover:text-white rounded-full"
-                  >
-                    <Link to="/contact">Learn More</Link>
-                  </Button>
-                </div>
-              </div>
-            ))}
-          </div>
-        </div>
-      </section>
-
-      {/* Analytics & Insights Section */}
+      {/* VoiceUp Bridge Section */}
       <section className="py-20 bg-gradient-to-br from-voiceup-blush to-white">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="text-center mb-16">
-            <h2 className="text-4xl lg:text-5xl font-bold text-voiceup-navy mb-4">
-              Analytics & Insights
-            </h2>
+            <div className="flex items-center justify-center mb-4">
+              <Zap className="h-12 w-12 text-voiceup-skyblue mr-4" />
+              <h2 className="text-4xl lg:text-5xl font-bold text-voiceup-navy">
+                VoiceUp Bridge
+              </h2>
+            </div>
             <p className="text-xl text-gray-600 max-w-3xl mx-auto">
-              Transform your data into actionable insights with our comprehensive analytics platform
+              A platform for seamless communication integration with AI platforms
             </p>
           </div>
 
-          <div className="space-y-16">
+          <div className="relative">
+            <Carousel className="w-full max-w-6xl mx-auto">
+              <CarouselContent>
+                {bridgeFeatures.map((feature, index) => (
+                  <CarouselItem key={index} className="md:basis-1/2 lg:basis-1/3">
+                    <div className="bg-white rounded-3xl shadow-xl overflow-hidden hover:shadow-2xl transition-all duration-300 hover:-translate-y-2 group">
+                      <div className="relative h-48 overflow-hidden">
+                        <img 
+                          src={feature.image} 
+                          alt={feature.title}
+                          className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-300"
+                        />
+                        <div className="absolute inset-0 bg-gradient-to-t from-voiceup-navy/80 to-transparent"></div>
+                      </div>
+                      <div className="p-6">
+                        <h3 className="text-xl font-bold text-voiceup-navy mb-3">
+                          {feature.title}
+                        </h3>
+                        <p className="text-gray-600 leading-relaxed">
+                          {feature.description}
+                        </p>
+                      </div>
+                    </div>
+                  </CarouselItem>
+                ))}
+              </CarouselContent>
+              <CarouselPrevious className="bg-voiceup-skyblue hover:bg-voiceup-periwinkle text-white border-0" />
+              <CarouselNext className="bg-voiceup-skyblue hover:bg-voiceup-periwinkle text-white border-0" />
+            </Carousel>
+          </div>
+        </div>
+      </section>
+
+      {/* Speech Recognition Section */}
+      <section className="py-20 bg-voiceup-navy">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
+          <div className="flex items-center justify-center mb-8">
+            <Mic className="h-12 w-12 text-voiceup-skyblue mr-4" />
+            <h2 className="text-4xl lg:text-5xl font-bold text-white">
+              Speech Recognition
+            </h2>
+          </div>
+          <div className="max-w-4xl mx-auto bg-white/10 backdrop-blur-sm rounded-3xl p-12">
+            <p className="text-xl text-gray-200 leading-relaxed">
+              Advanced speech recognition technology for various applications.
+            </p>
+          </div>
+        </div>
+      </section>
+
+      {/* Call Recording and Transcription Section */}
+      <section className="py-20 bg-gradient-to-br from-gray-50 to-voiceup-blush">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="text-center mb-16">
+            <div className="flex items-center justify-center mb-4">
+              <PhoneCall className="h-12 w-12 text-voiceup-skyblue mr-4" />
+              <h2 className="text-4xl lg:text-5xl font-bold text-voiceup-navy">
+                Call Recording and Transcription
+              </h2>
+            </div>
+          </div>
+
+          {/* Flowchart Style Layout */}
+          <div className="relative bg-white rounded-3xl shadow-2xl p-12">
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+              {recordingFeatures.map((feature, index) => (
+                <div 
+                  key={index} 
+                  className="group relative"
+                  onMouseEnter={() => setActiveAnalyticsCard(index)}
+                >
+                  <div className={`p-6 rounded-2xl border-2 transition-all duration-300 cursor-pointer ${
+                    activeAnalyticsCard === index 
+                      ? 'border-voiceup-skyblue bg-voiceup-skyblue text-white shadow-xl scale-105' 
+                      : 'border-gray-200 bg-white hover:border-voiceup-periwinkle hover:shadow-lg'
+                  }`}>
+                    <div className={`p-3 rounded-xl mb-4 ${
+                      activeAnalyticsCard === index 
+                        ? 'bg-white/20' 
+                        : 'bg-voiceup-skyblue text-white'
+                    }`}>
+                      {feature.icon}
+                    </div>
+                    <h3 className="text-lg font-bold mb-2">{feature.title}</h3>
+                    <p className={`text-sm leading-relaxed ${
+                      activeAnalyticsCard === index ? 'text-white/90' : 'text-gray-600'
+                    }`}>
+                      {feature.description}
+                    </p>
+                  </div>
+                  
+                  {/* Connecting lines for flowchart effect */}
+                  {index < recordingFeatures.length - 1 && (
+                    <div className="hidden lg:block absolute top-1/2 -right-3 transform -translate-y-1/2 z-10">
+                      <ArrowRight className="h-6 w-6 text-voiceup-skyblue" />
+                    </div>
+                  )}
+                </div>
+              ))}
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* Analytics and Insights Section */}
+      <section className="py-20 bg-voiceup-periwinkle">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="text-center mb-16">
+            <div className="flex items-center justify-center mb-4">
+              <BarChart3 className="h-12 w-12 text-white mr-4" />
+              <h2 className="text-4xl lg:text-5xl font-bold text-white">
+                Analytics and Insights
+              </h2>
+            </div>
+          </div>
+
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
             {analyticsFeatures.map((feature, index) => (
               <div 
                 key={index}
-                className={`flex flex-col lg:flex-row items-center gap-12 ${
-                  !feature.isImageLeft ? 'lg:flex-row-reverse' : ''
-                }`}
+                className="group bg-white rounded-3xl shadow-xl overflow-hidden hover:shadow-2xl transition-all duration-300 hover:-translate-y-2"
               >
-                <div className="lg:w-1/2">
-                  <div className="relative rounded-3xl overflow-hidden shadow-2xl">
-                    <img 
-                      src={feature.image} 
-                      alt={feature.title}
-                      className="w-full h-80 object-cover"
-                    />
-                    <div className="absolute inset-0 bg-gradient-to-br from-voiceup-navy/20 to-voiceup-skyblue/20"></div>
+                <div className="relative h-48 overflow-hidden">
+                  <img 
+                    src={feature.image} 
+                    alt={feature.title}
+                    className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-300"
+                  />
+                  <div className="absolute inset-0 bg-gradient-to-t from-voiceup-navy/80 to-transparent"></div>
+                  <div className="absolute bottom-4 left-6 text-white">
+                    <h3 className="text-xl font-bold">{feature.title}</h3>
                   </div>
                 </div>
-                
-                <div className="lg:w-1/2 space-y-6">
-                  <h3 className="text-3xl font-bold text-voiceup-navy">
-                    {feature.title}
-                  </h3>
-                  <p className="text-xl text-gray-600 leading-relaxed">
+                <div className="p-6">
+                  <p className="text-gray-600 leading-relaxed">
                     {feature.description}
                   </p>
-                  <Button 
-                    asChild
-                    className="bg-voiceup-skyblue hover:bg-voiceup-periwinkle text-white rounded-full"
-                  >
-                    <Link to="/contact">Explore Feature</Link>
-                  </Button>
                 </div>
               </div>
             ))}
@@ -248,69 +312,67 @@ const Solutions = () => {
         </div>
       </section>
 
-      {/* Value Proposition Section */}
-      <section className="py-20 bg-voiceup-navy">
+      {/* Agent Desktop Plugin Section */}
+      <section className="py-20 bg-gradient-to-br from-voiceup-navy to-voiceup-periwinkle">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="text-center mb-16">
-            <h2 className="text-4xl lg:text-5xl font-bold text-white mb-4">
-              VoiceUp: Value Proposition
-            </h2>
-            <p className="text-xl text-gray-300 max-w-3xl mx-auto">
-              Why enterprises choose VoiceUp for their voice automation needs
-            </p>
+            <div className="flex items-center justify-center mb-4">
+              <Users className="h-12 w-12 text-white mr-4" />
+              <h2 className="text-4xl lg:text-5xl font-bold text-white">
+                Agent Desktop Plugin
+              </h2>
+            </div>
           </div>
 
-          {/* Flowchart-style layout */}
-          <div className="relative">
-            {/* Central Hub */}
-            <div className="flex justify-center mb-12">
-              <div className="bg-gradient-to-br from-voiceup-skyblue to-voiceup-periwinkle p-8 rounded-full shadow-2xl">
-                <div className="text-center text-white">
-                  <img 
-                    src="/lovable-uploads/771100c5-8633-4c2a-adc9-43008ea382e0.png" 
-                    alt="VoiceUp" 
-                    className="h-12 w-12 mx-auto mb-2"
-                  />
-                  <span className="text-lg font-bold">VoiceUp</span>
-                </div>
-              </div>
-            </div>
-
-            {/* Value Props in circular arrangement */}
-            <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
-              {valueProps.map((prop, index) => (
-                <div 
-                  key={index}
-                  className="bg-white rounded-2xl p-8 shadow-xl hover:shadow-2xl transition-all duration-300 hover:-translate-y-1 group"
-                >
-                  <div className="text-center">
-                    <div className="p-4 bg-gradient-to-br from-voiceup-skyblue to-voiceup-periwinkle rounded-2xl text-white inline-block mb-4 group-hover:scale-110 transition-transform duration-300">
-                      {prop.icon}
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-12">
+            {agentDesktopFeatures.map((feature, index) => (
+              <div key={index} className="group">
+                <div className="bg-white rounded-3xl shadow-2xl overflow-hidden hover:shadow-3xl transition-all duration-300 hover:-translate-y-2">
+                  <div className="relative h-64 overflow-hidden">
+                    <img 
+                      src={feature.image} 
+                      alt={feature.title}
+                      className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-300"
+                    />
+                    <div className="absolute inset-0 bg-gradient-to-t from-voiceup-navy/90 to-transparent"></div>
+                    <div className="absolute bottom-6 left-6 text-white">
+                      <h3 className="text-2xl font-bold mb-2">{feature.title}</h3>
                     </div>
-                    <h3 className="text-xl font-semibold text-voiceup-navy mb-3">
-                      {prop.title}
-                    </h3>
-                    <p className="text-gray-600 leading-relaxed">
-                      {prop.description}
+                  </div>
+                  <div className="p-8">
+                    <p className="text-gray-600 text-lg leading-relaxed">
+                      {feature.description}
                     </p>
                   </div>
                 </div>
-              ))}
-            </div>
+              </div>
+            ))}
+          </div>
+        </div>
+      </section>
 
-            {/* Connection lines (decorative) */}
-            <div className="absolute inset-0 pointer-events-none">
-              <svg className="w-full h-full" style={{zIndex: -1}}>
-                <defs>
-                  <linearGradient id="connectionGradient" x1="0%" y1="0%" x2="100%" y2="100%">
-                    <stop offset="0%" stopColor="#4C8CC0" stopOpacity="0.3"/>
-                    <stop offset="100%" stopColor="#667BAB" stopOpacity="0.1"/>
-                  </linearGradient>
-                </defs>
-                {/* Decorative connecting lines */}
-                <path d="M 50% 20% Q 25% 40% 16.66% 60%" stroke="url(#connectionGradient)" strokeWidth="2" fill="none"/>
-                <path d="M 50% 20% Q 75% 40% 83.33% 60%" stroke="url(#connectionGradient)" strokeWidth="2" fill="none"/>
-              </svg>
+      {/* VoiceBot, ChatBot Section */}
+      <section className="py-20 bg-gradient-to-br from-voiceup-blush to-white">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
+          <div className="flex items-center justify-center mb-8">
+            <Bot className="h-12 w-12 text-voiceup-skyblue mr-4" />
+            <h2 className="text-4xl lg:text-5xl font-bold text-voiceup-navy">
+              VoiceBot, ChatBot
+            </h2>
+          </div>
+          
+          <div className="max-w-4xl mx-auto">
+            <div className="bg-white rounded-3xl shadow-2xl p-12 relative overflow-hidden">
+              <div className="absolute top-0 left-0 w-full h-2 bg-gradient-to-r from-voiceup-skyblue to-voiceup-periwinkle"></div>
+              <div className="relative z-10">
+                <h3 className="text-3xl font-bold text-voiceup-navy mb-6">
+                  Multi Lingual Voice Bot
+                </h3>
+                <p className="text-xl text-gray-600 leading-relaxed">
+                  Pre-Trained model on large CRM and other Enterprise Integration for Effective resolution and Management.
+                </p>
+              </div>
+              <div className="absolute bottom-0 right-0 w-32 h-32 bg-gradient-to-tl from-voiceup-skyblue/20 to-transparent rounded-full transform translate-x-16 translate-y-16"></div>
             </div>
           </div>
         </div>

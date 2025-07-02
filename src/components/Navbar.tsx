@@ -65,7 +65,7 @@ const Navbar = () => {
 
             {/* Partners Dropdown */}
             <div 
-              className="relative"
+              className="relative group"
               onMouseEnter={() => setActiveDropdown('partners')}
               onMouseLeave={() => setActiveDropdown(null)}
             >
@@ -74,35 +74,41 @@ const Navbar = () => {
                 <ChevronDown className="h-4 w-4" />
               </button>
               
-              {activeDropdown === 'partners' && (
-                <div className="absolute top-full left-0 mt-2 w-96 bg-white rounded-lg shadow-xl border p-6 animate-fade-in">
-                  <div className="grid grid-cols-2 gap-6">
-                    <div>
-                      <h3 className="font-semibold text-voiceup-navy mb-3">Channel Partners</h3>
-                      <ul className="space-y-2 text-sm">
-                        <li><a href="#" className="text-gray-600 hover:text-voiceup-skyblue">Channel Partners Program</a></li>
-                        <li><a href="#" className="text-gray-600 hover:text-voiceup-skyblue">How to Become a Partner?</a></li>
-                        <li><a href="#" className="text-gray-600 hover:text-voiceup-skyblue">Partner Application Form</a></li>
-                        <li><a href="#" className="text-gray-600 hover:text-voiceup-skyblue">Partner Portal Login</a></li>
-                      </ul>
-                    </div>
-                    <div>
-                      <h3 className="font-semibold text-voiceup-navy mb-3">Solution Partners</h3>
-                      <ul className="space-y-2 text-sm">
-                        <li><a href="#" className="text-gray-600 hover:text-voiceup-skyblue">Solution Partners Program</a></li>
-                        <li><a href="#" className="text-gray-600 hover:text-voiceup-skyblue">How to Become a Partner?</a></li>
-                        <li><a href="#" className="text-gray-600 hover:text-voiceup-skyblue">Partner Tools</a></li>
-                        <li><a href="#" className="text-gray-600 hover:text-voiceup-skyblue">Technical Documents</a></li>
-                      </ul>
-                    </div>
+              <div className={`absolute top-full left-0 mt-2 w-96 bg-white rounded-2xl shadow-2xl border border-gray-100 p-6 transition-all duration-300 ${
+                activeDropdown === 'partners' ? 'opacity-100 visible transform translate-y-0' : 'opacity-0 invisible transform -translate-y-2'
+              }`}>
+                <div className="grid grid-cols-2 gap-6">
+                  <div>
+                    <h3 className="font-semibold text-voiceup-navy mb-3 text-sm uppercase tracking-wide">Channel Partners</h3>
+                    <ul className="space-y-3">
+                      <li><a href="#" className="text-gray-600 hover:text-voiceup-skyblue transition-colors text-sm block py-1">Channel Partners Program</a></li>
+                      <li><a href="#" className="text-gray-600 hover:text-voiceup-skyblue transition-colors text-sm block py-1">How to Become a Partner?</a></li>
+                      <li><a href="#" className="text-gray-600 hover:text-voiceup-skyblue transition-colors text-sm block py-1">Partner Application Form</a></li>
+                      <li><a href="#" className="text-gray-600 hover:text-voiceup-skyblue transition-colors text-sm block py-1">Partner Portal Login</a></li>
+                    </ul>
+                  </div>
+                  <div>
+                    <h3 className="font-semibold text-voiceup-navy mb-3 text-sm uppercase tracking-wide">Solution Partners</h3>
+                    <ul className="space-y-3">
+                      <li><a href="#" className="text-gray-600 hover:text-voiceup-skyblue transition-colors text-sm block py-1">Solution Partners Program</a></li>
+                      <li><a href="#" className="text-gray-600 hover:text-voiceup-skyblue transition-colors text-sm block py-1">How to Become a Partner?</a></li>
+                      <li><a href="#" className="text-gray-600 hover:text-voiceup-skyblue transition-colors text-sm block py-1">Partner Tools</a></li>
+                      <li><a href="#" className="text-gray-600 hover:text-voiceup-skyblue transition-colors text-sm block py-1">Technical Documents</a></li>
+                    </ul>
                   </div>
                 </div>
-              )}
+                <div className="mt-4 pt-4 border-t border-gray-100">
+                  <div className="flex items-center space-x-2 text-voiceup-skyblue">
+                    <div className="w-2 h-2 bg-voiceup-skyblue rounded-full"></div>
+                    <span className="text-xs font-medium">Explore Partnership Opportunities</span>
+                  </div>
+                </div>
+              </div>
             </div>
 
             {/* Resources Dropdown */}
             <div 
-              className="relative"
+              className="relative group"
               onMouseEnter={() => setActiveDropdown('resources')}
               onMouseLeave={() => setActiveDropdown(null)}
             >
@@ -111,20 +117,35 @@ const Navbar = () => {
                 <ChevronDown className="h-4 w-4" />
               </button>
               
-              {activeDropdown === 'resources' && (
-                <div className="absolute top-full left-0 mt-2 w-48 bg-white rounded-lg shadow-xl border p-4 animate-fade-in">
-                  <ul className="space-y-2">
-                    <li><Link to="/brochure" className="block text-gray-600 hover:text-voiceup-skyblue">Brochure</Link></li>
-                    <li><Link to="/flyer" className="block text-gray-600 hover:text-voiceup-skyblue">Flyer</Link></li>
-                    <li><Link to="/blog" className="block text-gray-600 hover:text-voiceup-skyblue">Blogs</Link></li>
-                  </ul>
+              <div className={`absolute top-full left-0 mt-2 w-64 bg-white rounded-2xl shadow-2xl border border-gray-100 p-6 transition-all duration-300 ${
+                activeDropdown === 'resources' ? 'opacity-100 visible transform translate-y-0' : 'opacity-0 invisible transform -translate-y-2'
+              }`}>
+                <div className="space-y-3">
+                  <Link to="/brochure" className="flex items-center space-x-3 text-gray-600 hover:text-voiceup-skyblue transition-colors p-2 rounded-lg hover:bg-voiceup-blush">
+                    <div className="w-8 h-8 bg-voiceup-skyblue rounded-lg flex items-center justify-center">
+                      <span className="text-white text-xs font-bold">B</span>
+                    </div>
+                    <span className="text-sm">Brochure</span>
+                  </Link>
+                  <Link to="/flyer" className="flex items-center space-x-3 text-gray-600 hover:text-voiceup-skyblue transition-colors p-2 rounded-lg hover:bg-voiceup-blush">
+                    <div className="w-8 h-8 bg-voiceup-periwinkle rounded-lg flex items-center justify-center">
+                      <span className="text-white text-xs font-bold">F</span>
+                    </div>
+                    <span className="text-sm">Flyer</span>
+                  </Link>
+                  <Link to="/blog" className="flex items-center space-x-3 text-gray-600 hover:text-voiceup-skyblue transition-colors p-2 rounded-lg hover:bg-voiceup-blush">
+                    <div className="w-8 h-8 bg-voiceup-lavender rounded-lg flex items-center justify-center">
+                      <span className="text-white text-xs font-bold">B</span>
+                    </div>
+                    <span className="text-sm">Blogs</span>
+                  </Link>
                 </div>
-              )}
+              </div>
             </div>
 
             {/* Clients Dropdown */}
             <div 
-              className="relative"
+              className="relative group"
               onMouseEnter={() => setActiveDropdown('clients')}
               onMouseLeave={() => setActiveDropdown(null)}
             >
@@ -133,19 +154,29 @@ const Navbar = () => {
                 <ChevronDown className="h-4 w-4" />
               </button>
               
-              {activeDropdown === 'clients' && (
-                <div className="absolute top-full left-0 mt-2 w-48 bg-white rounded-lg shadow-xl border p-4 animate-fade-in">
-                  <ul className="space-y-2">
-                    <li><Link to="/industries" className="block text-gray-600 hover:text-voiceup-skyblue">Industries</Link></li>
-                    <li><Link to="/case-studies" className="block text-gray-600 hover:text-voiceup-skyblue">Case Studies</Link></li>
-                  </ul>
+              <div className={`absolute top-full left-0 mt-2 w-56 bg-white rounded-2xl shadow-2xl border border-gray-100 p-6 transition-all duration-300 ${
+                activeDropdown === 'clients' ? 'opacity-100 visible transform translate-y-0' : 'opacity-0 invisible transform -translate-y-2'
+              }`}>
+                <div className="space-y-3">
+                  <Link to="/industries" className="flex items-center space-x-3 text-gray-600 hover:text-voiceup-skyblue transition-colors p-2 rounded-lg hover:bg-voiceup-blush">
+                    <div className="w-8 h-8 bg-voiceup-navy rounded-lg flex items-center justify-center">
+                      <span className="text-white text-xs font-bold">I</span>
+                    </div>
+                    <span className="text-sm">Industries</span>
+                  </Link>
+                  <Link to="/case-studies" className="flex items-center space-x-3 text-gray-600 hover:text-voiceup-skyblue transition-colors p-2 rounded-lg hover:bg-voiceup-blush">
+                    <div className="w-8 h-8 bg-voiceup-skyblue rounded-lg flex items-center justify-center">
+                      <span className="text-white text-xs font-bold">C</span>
+                    </div>
+                    <span className="text-sm">Case Studies</span>
+                  </Link>
                 </div>
-              )}
+              </div>
             </div>
 
             <Button 
               asChild
-              className="bg-voiceup-skyblue hover:bg-voiceup-periwinkle text-white px-6 py-2 rounded-full"
+              className="bg-voiceup-skyblue hover:bg-voiceup-periwinkle text-white px-6 py-2 rounded-full shadow-lg hover:shadow-xl transition-all duration-300"
             >
               <Link to="/contact">Book a Demo</Link>
             </Button>
