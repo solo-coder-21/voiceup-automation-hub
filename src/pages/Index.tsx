@@ -11,8 +11,11 @@ const Index = () => {
   const [isInView, setIsInView] = useState(false);
   const [videoInView, setVideoInView] = useState(false);
   const [hoveredPlatformCapability, setHoveredPlatformCapability] = useState<number | null>(null);
+  const [scrollCapabilityIndex, setScrollCapabilityIndex] = useState(0);
+  const [scrollCapabilityInView, setScrollCapabilityInView] = useState(false);
   const dynamicSectionRef = useRef<HTMLDivElement>(null);
   const videoSectionRef = useRef<HTMLDivElement>(null);
+  const scrollCapabilitiesRef = useRef<HTMLDivElement>(null);
 
   const capabilities = [
     {
@@ -82,6 +85,13 @@ const Index = () => {
       { threshold: 0.2 }
     );
 
+    const scrollCapabilitiesObserver = new IntersectionObserver(
+      ([entry]) => {
+        setScrollCapabilityInView(entry.isIntersecting);
+      },
+      { threshold: 0.1 }
+    );
+
     if (dynamicSectionRef.current) {
       observer.observe(dynamicSectionRef.current);
     }
@@ -90,11 +100,31 @@ const Index = () => {
       videoObserver.observe(videoSectionRef.current);
     }
 
+    if (scrollCapabilitiesRef.current) {
+      scrollCapabilitiesObserver.observe(scrollCapabilitiesRef.current);
+    }
+
     return () => {
       observer.disconnect();
       videoObserver.disconnect();
+      scrollCapabilitiesObserver.disconnect();
     };
   }, []);
+
+  useEffect(() => {
+    const handleScroll = () => {
+      if (scrollCapabilitiesRef.current && scrollCapabilityInView) {
+        const rect = scrollCapabilitiesRef.current.getBoundingClientRect();
+        const sectionHeight = rect.height;
+        const scrollProgress = Math.max(0, Math.min(1, (window.innerHeight - rect.top) / (window.innerHeight + sectionHeight)));
+        const newIndex = Math.floor(scrollProgress * capabilities.length);
+        setScrollCapabilityIndex(Math.min(newIndex, capabilities.length - 1));
+      }
+    };
+
+    window.addEventListener('scroll', handleScroll);
+    return () => window.removeEventListener('scroll', handleScroll);
+  }, [scrollCapabilityInView, capabilities.length]);
 
   return (
     <div className="min-h-screen">
@@ -215,186 +245,142 @@ const Index = () => {
         </div>
       </section>
 
-      {/* Platform Capabilities with AI Circle */}
-      <section ref={dynamicSectionRef} className="py-20 bg-gradient-to-br from-voiceup-navy via-indigo-900 to-purple-900 relative overflow-hidden">
-        {/* Animated Background */}
+      {/* Scroll-triggered Platform Capabilities */}
+      <section ref={scrollCapabilitiesRef} className="py-20 bg-gradient-to-br from-voiceup-navy via-indigo-900 to-purple-900 relative overflow-hidden min-h-[300vh]">
+        {/* Enhanced Moving Background */}
         <div className="absolute inset-0 pointer-events-none">
-          {[...Array(30)].map((_, i) => (
+          <div className="absolute inset-0 bg-gradient-to-br from-blue-900/20 via-purple-900/20 to-indigo-900/20"></div>
+          {/* Floating geometric shapes */}
+          {[...Array(15)].map((_, i) => (
             <div
               key={i}
-              className="absolute w-1 h-1 bg-voiceup-skyblue rounded-full animate-pulse"
+              className="absolute bg-gradient-to-r from-cyan-400/20 to-blue-500/20 rotate-45"
               style={{
-                left: `${Math.random() * 100}%`,
-                top: `${Math.random() * 100}%`,
-                animationDelay: `${Math.random() * 3}s`,
-                animationDuration: `${2 + Math.random() * 2}s`
+                width: `${20 + i * 5}px`,
+                height: `${20 + i * 5}px`,
+                left: `${5 + i * 6}%`,
+                top: `${10 + (i % 4) * 20}%`,
+                animation: `float ${8 + i * 2}s ease-in-out infinite`,
+                animationDelay: `${i * 0.5}s`
               }}
             />
           ))}
+          {/* Wave lines */}
+          <svg className="absolute inset-0 w-full h-full opacity-30" viewBox="0 0 1000 1000">
+            <path
+              d="M0,400 Q250,300 500,400 T1000,400 V1000 H0 Z"
+              fill="url(#wave1)"
+              className="animate-pulse"
+            >
+              <animateTransform
+                attributeName="transform"
+                type="translate"
+                values="0,0;50,0;0,0"
+                dur="20s"
+                repeatCount="indefinite"
+              />
+            </path>
+            <defs>
+              <linearGradient id="wave1" x1="0%" y1="0%" x2="100%" y2="0%">
+                <stop offset="0%" stopColor="rgba(99, 102, 241, 0.1)" />
+                <stop offset="50%" stopColor="rgba(139, 92, 246, 0.2)" />
+                <stop offset="100%" stopColor="rgba(59, 130, 246, 0.1)" />
+              </linearGradient>
+            </defs>
+          </svg>
         </div>
 
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
-          <div className="text-center mb-16">
-            <h2 className="text-4xl lg:text-5xl font-bold text-white mb-4">
-              Platform Capabilities
-            </h2>
-            <p className="text-xl text-white/80 max-w-3xl mx-auto">
-              Explore our intelligent AI-powered platform capabilities
-            </p>
-          </div>
-
-          <div className="relative flex items-center justify-center min-h-[700px]">
-            {/* Central AI Hub */}
-            <div className="relative z-20">
-              {/* Main AI Circle */}
-              <div className={`w-64 h-64 rounded-full bg-gradient-to-r from-cyan-400 via-blue-500 to-purple-600 flex items-center justify-center transition-all duration-1000 ${
-                isInView ? 'animate-pulse scale-110' : 'scale-100'
-              } shadow-2xl`}>
-                <div className="w-48 h-48 rounded-full bg-gradient-to-r from-blue-600 to-purple-700 backdrop-blur-sm flex items-center justify-center relative overflow-hidden">
-                  {/* Circuit pattern inside */}
-                  <div className="absolute inset-0 opacity-30">
-                    <div className="w-full h-full bg-gradient-to-r from-cyan-400/20 to-purple-400/20 animate-pulse"></div>
-                    {[...Array(8)].map((_, i) => (
-                      <div
-                        key={i}
-                        className="absolute w-0.5 h-8 bg-cyan-300 animate-pulse"
-                        style={{
-                          left: `${30 + i * 10}%`,
-                          top: `${20 + (i % 3) * 20}%`,
-                          animationDelay: `${i * 0.3}s`,
-                          transform: `rotate(${i * 45}deg)`
-                        }}
-                      />
-                    ))}
-                  </div>
-                  <div className="text-6xl font-bold text-white z-10">AI</div>
-                </div>
-              </div>
-              
-              {/* Outer rings */}
-              <div className={`absolute inset-0 border-2 border-cyan-400/50 rounded-full animate-spin transition-opacity duration-1000 ${
-                isInView ? 'opacity-100' : 'opacity-0'
-              }`} style={{ width: '320px', height: '320px', top: '-28px', left: '-28px', animationDuration: '20s' }}></div>
-              <div className={`absolute inset-0 border border-purple-400/30 rounded-full animate-spin transition-opacity duration-1000 ${
-                isInView ? 'opacity-100' : 'opacity-0'
-              }`} style={{ width: '380px', height: '380px', top: '-58px', left: '-58px', animationDuration: '30s', animationDirection: 'reverse' }}></div>
+        <div className="sticky top-0 h-screen flex items-center justify-center">
+          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
+            <div className="text-center mb-16">
+              <h2 className="text-4xl lg:text-5xl font-bold text-white mb-4">
+                Platform Capabilities
+              </h2>
+              <p className="text-xl text-white/80 max-w-3xl mx-auto">
+                Experience our dynamic AI-powered platform capabilities
+              </p>
             </div>
 
-            {/* Capability Cards positioned around the circle */}
-            {capabilities.map((capability, index) => {
-              const angle = (index * 60) - 90; // 60 degrees apart, starting from top
-              const radius = 300;
-              const x = Math.cos(angle * Math.PI / 180) * radius;
-              const y = Math.sin(angle * Math.PI / 180) * radius;
-              
-              return (
-                <div
-                  key={capability.id}
-                  className={`absolute transition-all duration-1000 cursor-pointer ${
-                    isInView 
-                      ? 'opacity-100 translate-x-0 translate-y-0' 
-                      : 'opacity-0 translate-x-0 translate-y-0'
-                  }`}
-                  style={{
-                    transform: isInView 
-                      ? `translate(${x}px, ${y}px) scale(1)` 
-                      : 'translate(0px, 0px) scale(0.3)',
-                    transitionDelay: `${index * 300}ms`
-                  }}
-                  onMouseEnter={() => setHoveredPlatformCapability(capability.id)}
-                  onMouseLeave={() => setHoveredPlatformCapability(null)}
-                >
-                  <div className={`w-40 h-40 rounded-2xl bg-gradient-to-br ${capability.color} p-6 flex flex-col items-center justify-center text-white shadow-2xl hover:scale-110 transition-transform duration-300 relative`}>
-                    <div className="mb-3">
-                      {capability.icon}
-                    </div>
-                    <h4 className="text-sm font-semibold text-center leading-tight">
-                      {capability.title}
-                    </h4>
-                    
-                    {/* Hover Content */}
-                    {hoveredPlatformCapability === capability.id && (
-                      <div className="absolute top-full left-1/2 transform -translate-x-1/2 mt-4 w-80 bg-white rounded-xl shadow-2xl p-6 text-voiceup-navy z-30 animate-fade-in">
-                        <div className="flex items-center space-x-3 mb-4">
-                          <div className="p-2 bg-voiceup-skyblue rounded-lg text-white">
-                            {capability.icon}
-                          </div>
-                          <h3 className="font-bold text-lg">{capability.title}</h3>
-                        </div>
-                        <p className="text-gray-600 text-sm leading-relaxed mb-4">
-                          {capability.content}
-                        </p>
-                        <Button 
-                          asChild
-                          className="bg-voiceup-skyblue hover:bg-voiceup-periwinkle text-white rounded-full text-sm px-4 py-2"
-                        >
-                          <Link to="/solutions">Learn More</Link>
-                        </Button>
-                        {/* Arrow pointing to card */}
-                        <div className="absolute bottom-full left-1/2 transform -translate-x-1/2 w-0 h-0 border-l-8 border-r-8 border-b-8 border-l-transparent border-r-transparent border-b-white"></div>
-                      </div>
-                    )}
+            <div className="flex items-center justify-center min-h-[600px] relative">
+              {/* AI Circle - moves left/right based on scroll */}
+              <div 
+                className={`relative z-20 transition-all duration-1000 ease-out ${
+                  scrollCapabilityIndex % 2 === 0 ? 'translate-x-0' : 'translate-x-96'
+                }`}
+              >
+                <div className="w-64 h-64 rounded-full bg-gradient-to-r from-cyan-400 via-blue-500 to-purple-600 flex items-center justify-center animate-pulse shadow-2xl">
+                  <div className="w-48 h-48 rounded-full bg-gradient-to-r from-blue-600 to-purple-700 backdrop-blur-sm flex items-center justify-center relative overflow-hidden">
+                    <div className="text-6xl font-bold text-white z-10">AI</div>
+                    {/* Blooming effect */}
+                    <div className="absolute inset-0 rounded-full bg-gradient-to-r from-cyan-400/30 to-purple-400/30 animate-ping"></div>
                   </div>
-                  
-                  {/* Connection lines to center */}
-                  <svg className="absolute inset-0 pointer-events-none w-full h-full">
-                    <line
-                      x1="50%"
-                      y1="50%"
-                      x2={`${50 - (x / (radius * 2)) * 100}%`}
-                      y2={`${50 - (y / (radius * 2)) * 100}%`}
-                      stroke="rgba(99, 102, 241, 0.4)"
-                      strokeWidth="2"
-                      className={`transition-opacity duration-1000 ${isInView ? 'opacity-100' : 'opacity-0'}`}
-                      style={{ transitionDelay: `${index * 300 + 800}ms` }}
-                      strokeDasharray="5,5"
-                    />
-                  </svg>
                 </div>
-              );
-            })}
+              </div>
+
+              {/* Content Cards - appear on left/right alternately */}
+              {scrollCapabilityInView && (
+                <div 
+                  className={`absolute transition-all duration-1000 ease-out ${
+                    scrollCapabilityIndex % 2 === 0 ? 'left-0 translate-x-0' : 'right-0 -translate-x-0'
+                  } w-96`}
+                >
+                  <div className="bg-white/95 backdrop-blur-sm rounded-2xl shadow-2xl p-8 border border-white/20">
+                    <div className="flex items-center space-x-4 mb-6">
+                      <div className="p-3 bg-voiceup-skyblue rounded-lg text-white">
+                        {capabilities[scrollCapabilityIndex]?.icon}
+                      </div>
+                      <h3 className="text-2xl font-bold text-voiceup-navy">
+                        {capabilities[scrollCapabilityIndex]?.title}
+                      </h3>
+                    </div>
+                    <p className="text-gray-700 text-lg leading-relaxed mb-6">
+                      {capabilities[scrollCapabilityIndex]?.content}
+                    </p>
+                    <Button 
+                      asChild
+                      className="bg-voiceup-skyblue hover:bg-voiceup-periwinkle text-white rounded-full"
+                    >
+                      <Link to="/solutions">Learn More</Link>
+                    </Button>
+                  </div>
+                </div>
+              )}
+            </div>
           </div>
         </div>
       </section>
 
       {/* Enhanced Demo Video Section */}
       <section ref={videoSectionRef} className="py-20 bg-voiceup-navy relative overflow-hidden">
-        {/* Enhanced Moving Background Elements */}
+        {/* Enhanced Moving Background */}
         <div className="absolute inset-0 pointer-events-none">
-          <div className="absolute top-0 left-0 w-full h-full opacity-20">
-            {/* Floating orbs */}
-            {[...Array(12)].map((_, i) => (
-              <div
-                key={i}
-                className="absolute bg-gradient-to-r from-voiceup-skyblue to-voiceup-periwinkle rounded-full animate-pulse"
-                style={{
-                  width: `${60 + i * 20}px`,
-                  height: `${60 + i * 20}px`,
-                  left: `${5 + i * 8}%`,
-                  top: `${5 + (i % 4) * 20}%`,
-                  animation: `float ${6 + i * 1.5}s ease-in-out infinite`,
-                  animationDelay: `${i * 0.8}s`
-                }}
-              />
-            ))}
-            
-            {/* Moving particles */}
-            {[...Array(20)].map((_, i) => (
-              <div
-                key={`particle-${i}`}
-                className="absolute w-1 h-1 bg-voiceup-skyblue rounded-full animate-ping"
-                style={{
-                  left: `${Math.random() * 100}%`,
-                  top: `${Math.random() * 100}%`,
-                  animationDelay: `${Math.random() * 4}s`,
-                  animationDuration: `${3 + Math.random() * 2}s`
-                }}
-              />
-            ))}
-          </div>
+          {/* Animated mesh gradient */}
+          <div className="absolute inset-0 bg-gradient-to-br from-purple-900/30 via-blue-900/30 to-indigo-900/30 animate-pulse"></div>
           
-          {/* Gradient waves */}
-          <div className="absolute inset-0 bg-gradient-to-r from-transparent via-voiceup-skyblue/5 to-transparent animate-pulse"></div>
+          {/* Floating data streams */}
+          {[...Array(20)].map((_, i) => (
+            <div
+              key={`stream-${i}`}
+              className="absolute w-px h-24 bg-gradient-to-b from-transparent via-voiceup-skyblue/60 to-transparent"
+              style={{
+                left: `${Math.random() * 100}%`,
+                top: `${Math.random() * 100}%`,
+                animation: `float ${4 + Math.random() * 3}s ease-in-out infinite`,
+                animationDelay: `${Math.random() * 2}s`
+              }}
+            />
+          ))}
+          
+          {/* Circuit board pattern */}
+          <svg className="absolute inset-0 w-full h-full opacity-20" viewBox="0 0 100 100">
+            <defs>
+              <pattern id="circuit" x="0" y="0" width="10" height="10" patternUnits="userSpaceOnUse">
+                <path d="M 0 5 L 10 5 M 5 0 L 5 10" stroke="rgba(99, 102, 241, 0.3)" strokeWidth="0.5"/>
+                <circle cx="5" cy="5" r="1" fill="rgba(99, 102, 241, 0.5)"/>
+              </pattern>
+            </defs>
+            <rect width="100%" height="100%" fill="url(#circuit)"/>
+          </svg>
         </div>
 
         <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 text-center relative z-10">
@@ -408,113 +394,104 @@ const Index = () => {
           </div>
           
           <div className={`relative transition-all duration-1000 ${videoInView ? 'opacity-100 scale-100' : 'opacity-0 scale-95'}`} style={{ transitionDelay: '300ms' }}>
-            {/* Multi-layered Animated Border */}
+            {/* Enhanced Animated Border */}
             <div className="relative rounded-3xl overflow-hidden shadow-2xl">
-              <div className="absolute inset-0 bg-gradient-to-r from-voiceup-skyblue via-voiceup-periwinkle to-voiceup-lavender p-2 rounded-3xl animate-pulse">
-                <div className="bg-voiceup-navy rounded-2xl h-full"></div>
+              <div className="absolute inset-0 bg-gradient-to-r from-voiceup-skyblue via-voiceup-periwinkle to-voiceup-lavender p-2 rounded-3xl">
+                <div className="absolute inset-0 bg-gradient-to-r from-voiceup-skyblue via-voiceup-periwinkle to-voiceup-lavender rounded-3xl animate-spin" style={{ animationDuration: '10s' }}></div>
+                <div className="bg-voiceup-navy rounded-2xl h-full relative z-10"></div>
               </div>
               
               {/* Video Container */}
               <div className="relative bg-gradient-to-br from-voiceup-skyblue to-voiceup-periwinkle p-3 rounded-3xl">
                 <div className="bg-gradient-to-br from-gray-900 to-voiceup-navy rounded-2xl overflow-hidden">
                   <div className="aspect-video relative overflow-hidden">
-                    {/* Animated GIF-like Thumbnail */}
+                    {/* Dynamic Animated Thumbnail */}
                     <div className="absolute inset-0 bg-gradient-to-br from-blue-900 via-purple-900 to-indigo-900">
-                      {/* Central video area with animated elements */}
-                      <div className="absolute inset-0 flex items-center justify-center">
-                        {/* Multichannel communication visual */}
-                        <div className="relative w-80 h-80">
-                          {/* Central AI core */}
-                          <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-24 h-24 bg-gradient-to-r from-cyan-400 to-blue-500 rounded-full flex items-center justify-center animate-pulse">
-                            <div className="text-white font-bold text-sm">AI</div>
+                      {/* Multiple animated layers */}
+                      <div className="absolute inset-0">
+                        {/* Data flow animation */}
+                        {[...Array(12)].map((_, i) => (
+                          <div
+                            key={`flow-${i}`}
+                            className="absolute w-2 h-2 bg-cyan-400 rounded-full animate-pulse"
+                            style={{
+                              left: `${10 + i * 8}%`,
+                              top: `${20 + (i % 3) * 30}%`,
+                              animation: `pulse ${1 + i * 0.2}s ease-in-out infinite`,
+                              animationDelay: `${i * 0.1}s`
+                            }}
+                          />
+                        ))}
+                        
+                        {/* Waveform visualization */}
+                        <div className="absolute bottom-1/4 left-1/4 right-1/4 flex items-end space-x-1">
+                          {[...Array(20)].map((_, i) => (
+                            <div
+                              key={`wave-${i}`}
+                              className="bg-gradient-to-t from-green-400 to-cyan-400 rounded-t-sm animate-pulse"
+                              style={{
+                                width: '4px',
+                                height: `${10 + Math.random() * 40}px`,
+                                animationDelay: `${i * 0.1}s`,
+                                animationDuration: `${1 + Math.random()}s`
+                              }}
+                            />
+                          ))}
+                        </div>
+                        
+                        {/* Network nodes */}
+                        <div className="absolute top-1/4 left-1/3 w-16 h-16 border-2 border-cyan-400 rounded-full flex items-center justify-center animate-ping">
+                          <div className="w-8 h-8 bg-cyan-400 rounded-full"></div>
+                        </div>
+                        
+                        {/* Floating text elements */}
+                        <div className="absolute top-8 left-8 text-white text-sm animate-fade-in">
+                          <div className="bg-black/40 rounded-lg p-2 backdrop-blur-sm">
+                            Real-time AI Processing
                           </div>
-                          
-                          {/* Orbiting communication channels */}
-                          {[
-                            { icon: '📞', label: 'Voice', angle: 0, color: 'from-green-400 to-green-500' },
-                            { icon: '✉️', label: 'Email', angle: 60, color: 'from-blue-400 to-blue-500' },
-                            { icon: '💬', label: 'Chat', angle: 120, color: 'from-purple-400 to-purple-500' },
-                            { icon: '📱', label: 'SMS', angle: 180, color: 'from-pink-400 to-pink-500' },
-                            { icon: '👥', label: 'Social', angle: 240, color: 'from-yellow-400 to-yellow-500' },
-                            { icon: '🤖', label: 'Bot', angle: 300, color: 'from-cyan-400 to-cyan-500' }
-                          ].map((channel, i) => {
-                            const radius = 120;
-                            const x = Math.cos((channel.angle - 90) * Math.PI / 180) * radius;
-                            const y = Math.sin((channel.angle - 90) * Math.PI / 180) * radius;
-                            
-                            return (
-                              <div
-                                key={i}
-                                className={`absolute w-16 h-16 bg-gradient-to-r ${channel.color} rounded-full flex items-center justify-center text-white font-semibold text-xs shadow-lg animate-bounce`}
-                                style={{
-                                  left: `calc(50% + ${x}px - 32px)`,
-                                  top: `calc(50% + ${y}px - 32px)`,
-                                  animationDelay: `${i * 0.3}s`,
-                                  animationDuration: '2s'
-                                }}
-                              >
-                                <div className="text-center">
-                                  <div className="text-lg">{channel.icon}</div>
-                                  <div className="text-[10px]">{channel.label}</div>
-                                </div>
-                              </div>
-                            );
-                          })}
-                          
-                          {/* Connecting lines */}
-                          <svg className="absolute inset-0 w-full h-full pointer-events-none">
-                            {[0, 60, 120, 180, 240, 300].map((angle, i) => {
-                              const radius = 120;
-                              const x1 = Math.cos((angle - 90) * Math.PI / 180) * 48;
-                              const y1 = Math.sin((angle - 90) * Math.PI / 180) * 48;
-                              const x2 = Math.cos((angle - 90) * Math.PI / 180) * radius;
-                              const y2 = Math.sin((angle - 90) * Math.PI / 180) * radius;
-                              
-                              return (
-                                <line
-                                  key={i}
-                                  x1={`calc(50% + ${x1}px)`}
-                                  y1={`calc(50% + ${y1}px)`}
-                                  x2={`calc(50% + ${x2}px)`}
-                                  y2={`calc(50% + ${y2}px)`}
-                                  stroke="rgba(99, 102, 241, 0.6)"
-                                  strokeWidth="2"
-                                  className="animate-pulse"
-                                  style={{ animationDelay: `${i * 0.2}s` }}
-                                />
-                              );
-                            })}
+                        </div>
+                        <div className="absolute top-8 right-8 text-cyan-300 text-xs animate-fade-in" style={{ animationDelay: '1s' }}>
+                          <div className="bg-black/40 rounded-lg p-2 backdrop-blur-sm">
+                            Multi-channel Integration
+                          </div>
+                        </div>
+                        <div className="absolute bottom-20 left-8 text-green-300 text-xs animate-fade-in" style={{ animationDelay: '2s' }}>
+                          <div className="bg-black/40 rounded-lg p-2 backdrop-blur-sm">
+                            Voice Analytics Dashboard
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                    
+                    {/* Enhanced Play Button Overlay */}
+                    <div className="absolute inset-0 flex items-center justify-center bg-black/20 hover:bg-black/30 transition-colors duration-300 cursor-pointer group">
+                      <div className="relative">
+                        <div className="w-24 h-24 bg-white/90 rounded-full flex items-center justify-center shadow-2xl group-hover:scale-110 transition-transform duration-300 relative z-10">
+                          <svg className="w-10 h-10 text-voiceup-navy ml-1" fill="currentColor" viewBox="0 0 24 24">
+                            <path d="M8 5v14l11-7z"/>
                           </svg>
                         </div>
-                      </div>
-                      
-                      {/* Floating text elements */}
-                      <div className="absolute top-8 left-8 text-white text-sm animate-fade-in">
-                        GenAI-Powered Multichannel
-                      </div>
-                      <div className="absolute top-12 left-8 text-cyan-300 text-xs animate-fade-in" style={{ animationDelay: '0.5s' }}>
-                        Collections and Customer Support
+                        {/* Ripple effect */}
+                        <div className="absolute inset-0 w-24 h-24 border-4 border-white/50 rounded-full animate-ping"></div>
                       </div>
                     </div>
                     
-                    {/* Play Button Overlay */}
-                    <div className="absolute inset-0 flex items-center justify-center bg-black/20 hover:bg-black/30 transition-colors duration-300 cursor-pointer group">
-                      <div className="w-24 h-24 bg-white/90 rounded-full flex items-center justify-center shadow-2xl group-hover:scale-110 transition-transform duration-300">
-                        <svg className="w-10 h-10 text-voiceup-navy ml-1" fill="currentColor" viewBox="0 0 24 24">
-                          <path d="M8 5v14l11-7z"/>
-                        </svg>
-                      </div>
-                    </div>
-                    
-                    {/* Video progress bar mockup */}
-                    <div className="absolute bottom-4 left-4 right-4 bg-black/40 rounded-lg p-2">
-                      <div className="flex items-center space-x-2 text-white text-sm">
-                        <div className="w-2 h-2 bg-white rounded-full"></div>
-                        <span>2:05</span>
-                        <div className="flex-1 bg-gray-600 rounded-full h-1">
-                          <div className="bg-voiceup-skyblue h-1 rounded-full w-1/3 animate-pulse"></div>
+                    {/* Enhanced progress bar mockup */}
+                    <div className="absolute bottom-4 left-4 right-4 bg-black/60 rounded-lg p-3 backdrop-blur-sm">
+                      <div className="flex items-center space-x-3 text-white text-sm">
+                        <div className="w-3 h-3 bg-green-400 rounded-full animate-pulse"></div>
+                        <span className="font-mono">2:05</span>
+                        <div className="flex-1 bg-gray-600 rounded-full h-2 relative overflow-hidden">
+                          <div className="bg-gradient-to-r from-voiceup-skyblue to-green-400 h-2 rounded-full w-1/3 relative">
+                            <div className="absolute inset-0 bg-white/30 rounded-full animate-pulse"></div>
+                          </div>
                         </div>
-                        <span>5:30</span>
+                        <span className="font-mono">5:30</span>
+                        <div className="flex space-x-1">
+                          <div className="w-1 h-1 bg-white rounded-full animate-pulse"></div>
+                          <div className="w-1 h-1 bg-white rounded-full animate-pulse" style={{ animationDelay: '0.5s' }}></div>
+                          <div className="w-1 h-1 bg-white rounded-full animate-pulse" style={{ animationDelay: '1s' }}></div>
+                        </div>
                       </div>
                     </div>
                   </div>
@@ -525,7 +502,7 @@ const Index = () => {
         </div>
       </section>
 
-      {/* Interactive Diagram Section - Fixed positioning */}
+      {/* Fixed Architecture Overview - Flowchart */}
       <section className="py-20 bg-gradient-to-br from-voiceup-blush to-white overflow-hidden">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="text-center mb-16">
@@ -538,25 +515,9 @@ const Index = () => {
           </div>
 
           <div className="bg-gradient-to-br from-yellow-50 to-yellow-100 rounded-3xl shadow-2xl p-8 lg:p-12 relative border-4 border-yellow-200">
-            {/* Floating Signal Graphics */}
-            <div className="absolute inset-0 pointer-events-none overflow-hidden rounded-3xl">
-              {[...Array(8)].map((_, i) => (
-                <div
-                  key={i}
-                  className="absolute w-2 h-2 bg-voiceup-skyblue rounded-full animate-pulse"
-                  style={{
-                    left: `${10 + i * 12}%`,
-                    top: `${15 + (i % 3) * 25}%`,
-                    animationDelay: `${i * 0.5}s`,
-                    animationDuration: '2s'
-                  }}
-                />
-              ))}
-            </div>
-
-            <div className="relative">
-              {/* Architecture Layout - Fixed positioning */}
-              <div className="flex flex-col items-center space-y-12">
+            <div className="relative max-w-4xl mx-auto">
+              {/* Architecture Layout - Proper positioning */}
+              <div className="flex flex-col items-center space-y-8">
                 
                 {/* Top Row - PSTN */}
                 <div className="relative">
@@ -570,65 +531,70 @@ const Index = () => {
 
                 {/* Connection Line */}
                 <div className="flex flex-col items-center">
-                  <div className="w-0.5 h-12 bg-gray-400"></div>
+                  <div className="w-0.5 h-8 bg-gray-400"></div>
                   <span className="text-xs bg-gray-200 px-3 py-1 rounded-full font-semibold border">SIP</span>
-                  <div className="w-0.5 h-12 bg-gray-400"></div>
+                  <div className="w-0.5 h-8 bg-gray-400"></div>
                 </div>
 
                 {/* Second Row - SBC, VoiceUp Service, AI Service */}
-                <div className="flex items-center justify-center space-x-20 relative w-full">
-                  <div className="group relative">
-                    <div className="bg-gradient-to-r from-blue-600 to-blue-700 text-white px-8 py-4 rounded-2xl shadow-lg cursor-pointer hover:shadow-2xl transition-all duration-300 hover:scale-105 border-2 border-blue-500">
-                      <span className="font-bold text-lg">SBC</span>
-                    </div>
-                    <div className="absolute top-2 right-2 w-3 h-3 bg-green-400 rounded-full animate-pulse"></div>
-                  </div>
-
-                  {/* Horizontal connections */}
-                  <div className="flex items-center space-x-3">
-                    <div className="w-16 h-0.5 bg-gray-400"></div>
-                    <span className="text-xs bg-gray-200 px-3 py-1 rounded-full font-semibold border whitespace-nowrap">SIPREC/SIP</span>
-                    <div className="w-16 h-0.5 bg-gray-400"></div>
-                  </div>
-
-                  <div className="group relative">
-                    <div className="bg-gradient-to-r from-voiceup-skyblue to-voiceup-periwinkle text-white px-10 py-6 rounded-2xl shadow-lg cursor-pointer hover:shadow-2xl transition-all duration-300 hover:scale-105 border-2 border-voiceup-navy">
-                      <div className="flex flex-col items-center">
-                        <Mic className="h-6 w-6 mb-2" />
-                        <span className="font-bold text-lg">VoiceUp Service</span>
+                <div className="grid grid-cols-3 gap-8 items-center w-full max-w-4xl">
+                  <div className="flex flex-col items-center">
+                    <div className="group relative">
+                      <div className="bg-gradient-to-r from-blue-600 to-blue-700 text-white px-8 py-4 rounded-2xl shadow-lg cursor-pointer hover:shadow-2xl transition-all duration-300 hover:scale-105 border-2 border-blue-500">
+                        <span className="font-bold text-lg">SBC</span>
                       </div>
+                      <div className="absolute top-2 right-2 w-3 h-3 bg-green-400 rounded-full animate-pulse"></div>
                     </div>
-                    <div className="absolute top-2 right-2 w-3 h-3 bg-green-400 rounded-full animate-pulse"></div>
                   </div>
 
-                  <div className="flex items-center space-x-3">
-                    <div className="w-16 h-0.5 bg-gray-400"></div>
-                    <div className="w-16 h-0.5 bg-gray-400"></div>
-                  </div>
-
-                  <div className="group relative">
-                    <div className="bg-gradient-to-r from-purple-500 to-purple-600 text-white px-10 py-6 rounded-2xl shadow-lg cursor-pointer hover:shadow-2xl transition-all duration-300 hover:scale-105 border-2 border-purple-400">
-                      <div className="flex flex-col items-center">
-                        <Bot className="h-6 w-6 mb-2" />
-                        <span className="font-bold text-lg">AI Service</span>
+                  <div className="flex flex-col items-center">
+                    <div className="group relative">
+                      <div className="bg-gradient-to-r from-voiceup-skyblue to-voiceup-periwinkle text-white px-10 py-6 rounded-2xl shadow-lg cursor-pointer hover:shadow-2xl transition-all duration-300 hover:scale-105 border-2 border-voiceup-navy">
+                        <div className="flex flex-col items-center">
+                          <Mic className="h-6 w-6 mb-2" />
+                          <span className="font-bold text-lg">VoiceUp Service</span>
+                        </div>
                       </div>
+                      <div className="absolute top-2 right-2 w-3 h-3 bg-green-400 rounded-full animate-pulse"></div>
                     </div>
-                    <div className="absolute top-2 right-2 w-3 h-3 bg-green-400 rounded-full animate-pulse"></div>
+                  </div>
+
+                  <div className="flex flex-col items-center">
+                    <div className="group relative">
+                      <div className="bg-gradient-to-r from-purple-500 to-purple-600 text-white px-10 py-6 rounded-2xl shadow-lg cursor-pointer hover:shadow-2xl transition-all duration-300 hover:scale-105 border-2 border-purple-400">
+                        <div className="flex flex-col items-center">
+                          <Bot className="h-6 w-6 mb-2" />
+                          <span className="font-bold text-lg">AI Service</span>
+                        </div>
+                      </div>
+                      <div className="absolute top-2 right-2 w-3 h-3 bg-green-400 rounded-full animate-pulse"></div>
+                    </div>
                   </div>
                 </div>
 
-                {/* Connection from SBC to PBX - Positioned correctly */}
-                <div className="flex justify-start w-full">
-                  <div className="flex flex-col items-center ml-8">
-                    <div className="w-0.5 h-12 bg-gray-400"></div>
+                {/* Connection lines between SBC and VoiceUp, VoiceUp and AI */}
+                <div className="grid grid-cols-3 gap-8 w-full max-w-4xl">
+                  <div className="flex justify-center">
+                    <span className="text-xs bg-gray-200 px-3 py-1 rounded-full font-semibold border">SIPREC/SIP</span>
+                  </div>
+                  <div></div>
+                  <div className="flex justify-center">
+                    <span className="text-xs bg-gray-200 px-3 py-1 rounded-full font-semibold border">API</span>
+                  </div>
+                </div>
+
+                {/* Connection from SBC to PBX */}
+                <div className="flex justify-start w-full max-w-4xl">
+                  <div className="flex flex-col items-center" style={{ marginLeft: '12.5%' }}>
+                    <div className="w-0.5 h-8 bg-gray-400"></div>
                     <span className="text-xs bg-gray-200 px-3 py-1 rounded-full font-semibold border">SIP</span>
-                    <div className="w-0.5 h-12 bg-gray-400"></div>
+                    <div className="w-0.5 h-8 bg-gray-400"></div>
                   </div>
                 </div>
 
                 {/* PBX Row - Positioned under SBC */}
-                <div className="flex justify-start w-full">
-                  <div className="group relative ml-8">
+                <div className="flex justify-start w-full max-w-4xl">
+                  <div className="group relative" style={{ marginLeft: '12.5%' }}>
                     <div className="bg-gradient-to-r from-blue-600 to-blue-700 text-white px-12 py-6 rounded-2xl shadow-lg cursor-pointer hover:shadow-2xl transition-all duration-300 hover:scale-105 border-2 border-blue-500">
                       <div className="flex items-center space-x-3">
                         <PhoneCall className="h-6 w-6" />
@@ -642,14 +608,14 @@ const Index = () => {
                 {/* Vertical connection from VoiceUp Service to Agent Desktops */}
                 <div className="flex justify-center">
                   <div className="flex flex-col items-center">
-                    <div className="w-0.5 h-16 bg-gray-400"></div>
-                    <div className="w-4 h-4 bg-voiceup-skyblue rounded-full animate-pulse"></div>
                     <div className="w-0.5 h-12 bg-gray-400"></div>
+                    <div className="w-4 h-4 bg-voiceup-skyblue rounded-full animate-pulse"></div>
+                    <div className="w-0.5 h-8 bg-gray-400"></div>
                   </div>
                 </div>
 
                 {/* Agent Desktop Level */}
-                <div className="flex items-center justify-center space-x-12 relative">
+                <div className="flex items-center justify-center space-x-8 relative">
                   {[1, 2, 3].map((i) => (
                     <div key={i} className="group relative">
                       <div className="bg-gradient-to-br from-voiceup-skyblue to-voiceup-periwinkle text-white px-6 py-6 rounded-2xl shadow-lg cursor-pointer hover:shadow-2xl hover:scale-105 transition-all duration-300 border-2 border-voiceup-navy">
