@@ -10,16 +10,12 @@ const Index = () => {
   const [hoveredCapability, setHoveredCapability] = useState<number | null>(null);
   const [isInView, setIsInView] = useState(false);
   const [videoInView, setVideoInView] = useState(false);
-  const [videoScrollProgress, setVideoScrollProgress] = useState(0);
   const [hoveredPlatformCapability, setHoveredPlatformCapability] = useState<number | null>(null);
   const [scrollCapabilityIndex, setScrollCapabilityIndex] = useState(0);
   const [scrollCapabilityInView, setScrollCapabilityInView] = useState(false);
-  const [bloomingCapabilitiesProgress, setBloomingCapabilitiesProgress] = useState(0);
-  const [bloomingInView, setBloomingInView] = useState(false);
   const dynamicSectionRef = useRef<HTMLDivElement>(null);
   const videoSectionRef = useRef<HTMLDivElement>(null);
   const scrollCapabilitiesRef = useRef<HTMLDivElement>(null);
-  const bloomingCapabilitiesRef = useRef<HTMLDivElement>(null);
 
   const capabilities = [
     {
@@ -72,37 +68,6 @@ const Index = () => {
     }
   ];
 
-  const bloomingCapabilities = [
-    {
-      id: 1,
-      title: "Multiple channels",
-      description: "Use voice, SMS, email and chat in sync to boost engagement and maximize collections.",
-      icon: "🔗",
-      position: "top-left"
-    },
-    {
-      id: 2,
-      title: "Compliance", 
-      description: "The only compliance-first Omnichannel Conversational AI solution.",
-      icon: "🛡️",
-      position: "top-right"
-    },
-    {
-      id: 3,
-      title: "Analytics",
-      description: "Single dashboard view of every campaign outcome featuring trends and actionable insights.",
-      icon: "📊",
-      position: "bottom-left"
-    },
-    {
-      id: 4,
-      title: "Integrations",
-      description: "A vast array of out-of-the-box integrations with CRMs, payment gateways, telephony, and SMS solutions.",
-      icon: "⚙️",
-      position: "bottom-right"
-    }
-  ];
-
   const selectedCapability = hoveredCapability ? capabilities.find(c => c.id === hoveredCapability) : capabilities[0];
 
   useEffect(() => {
@@ -117,19 +82,12 @@ const Index = () => {
       ([entry]) => {
         setVideoInView(entry.isIntersecting);
       },
-      { threshold: 0.1 }
+      { threshold: 0.2 }
     );
 
     const scrollCapabilitiesObserver = new IntersectionObserver(
       ([entry]) => {
         setScrollCapabilityInView(entry.isIntersecting);
-      },
-      { threshold: 0.1 }
-    );
-
-    const bloomingObserver = new IntersectionObserver(
-      ([entry]) => {
-        setBloomingInView(entry.isIntersecting);
       },
       { threshold: 0.1 }
     );
@@ -146,15 +104,10 @@ const Index = () => {
       scrollCapabilitiesObserver.observe(scrollCapabilitiesRef.current);
     }
 
-    if (bloomingCapabilitiesRef.current) {
-      bloomingObserver.observe(bloomingCapabilitiesRef.current);
-    }
-
     return () => {
       observer.disconnect();
       videoObserver.disconnect();
       scrollCapabilitiesObserver.disconnect();
-      bloomingObserver.disconnect();
     };
   }, []);
 
@@ -167,24 +120,11 @@ const Index = () => {
         const newIndex = Math.floor(scrollProgress * capabilities.length);
         setScrollCapabilityIndex(Math.min(newIndex, capabilities.length - 1));
       }
-
-      if (bloomingCapabilitiesRef.current && bloomingInView) {
-        const rect = bloomingCapabilitiesRef.current.getBoundingClientRect();
-        const sectionHeight = rect.height;
-        const progress = Math.max(0, Math.min(1, (window.innerHeight - rect.top) / (window.innerHeight + sectionHeight)));
-        setBloomingCapabilitiesProgress(progress);
-      }
-
-      if (videoSectionRef.current && videoInView) {
-        const rect = videoSectionRef.current.getBoundingClientRect();
-        const progress = Math.max(0, Math.min(1, (window.innerHeight - rect.top) / window.innerHeight));
-        setVideoScrollProgress(progress);
-      }
     };
 
     window.addEventListener('scroll', handleScroll);
     return () => window.removeEventListener('scroll', handleScroll);
-  }, [scrollCapabilityInView, capabilities.length, bloomingInView, videoInView]);
+  }, [scrollCapabilityInView, capabilities.length]);
 
   return (
     <div className="min-h-screen">
@@ -305,115 +245,6 @@ const Index = () => {
         </div>
       </section>
 
-      {/* New Blooming Platform Capabilities */}
-      <section ref={bloomingCapabilitiesRef} className="py-20 bg-gradient-to-br from-blue-900 via-purple-900 to-indigo-900 relative overflow-hidden min-h-[200vh]">
-        {/* Moving background */}
-        <div className="absolute inset-0 pointer-events-none">
-          <div className="absolute inset-0 bg-gradient-to-br from-blue-900/20 via-purple-900/20 to-indigo-900/20"></div>
-          {/* Tech circuit pattern */}
-          <svg className="absolute inset-0 w-full h-full opacity-10" viewBox="0 0 1000 1000">
-            <defs>
-              <pattern id="circuit" x="0" y="0" width="50" height="50" patternUnits="userSpaceOnUse">
-                <path d="M 0 25 L 50 25 M 25 0 L 25 50" stroke="rgba(99, 255, 255, 0.3)" strokeWidth="1"/>
-                <circle cx="25" cy="25" r="3" fill="rgba(99, 255, 255, 0.5)"/>
-              </pattern>
-            </defs>
-            <rect width="100%" height="100%" fill="url(#circuit)"/>
-          </svg>
-        </div>
-
-        <div className="sticky top-0 h-screen flex items-center justify-center">
-          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
-            <div className="text-center mb-16">
-              <h2 className="text-4xl lg:text-5xl font-bold text-white mb-4">
-                Platform Capabilities
-              </h2>
-              <p className="text-xl text-white/80 max-w-3xl mx-auto">
-                Experience our comprehensive AI-powered platform
-              </p>
-            </div>
-
-            <div className="relative h-[600px] flex items-center justify-center">
-              {/* Central AI Circle */}
-              <div className="relative z-20 w-64 h-64 rounded-full bg-gradient-to-r from-cyan-400 via-blue-500 to-purple-600 flex items-center justify-center animate-pulse shadow-2xl">
-                <div className="w-48 h-48 rounded-full bg-gradient-to-r from-blue-600 to-purple-700 backdrop-blur-sm flex items-center justify-center relative overflow-hidden">
-                  <div className="text-6xl font-bold text-white z-10">AI</div>
-                  {/* Circuit lines emanating from center */}
-                  <div className="absolute inset-0">
-                    {[...Array(8)].map((_, i) => (
-                      <div
-                        key={i}
-                        className="absolute w-px h-16 bg-gradient-to-t from-cyan-400 to-transparent"
-                        style={{
-                          transform: `rotate(${i * 45}deg)`,
-                          transformOrigin: '50% 100%',
-                          bottom: '50%',
-                          left: '50%'
-                        }}
-                      />
-                    ))}
-                  </div>
-                  <div className="absolute inset-0 rounded-full bg-gradient-to-r from-cyan-400/30 to-purple-400/30 animate-ping"></div>
-                </div>
-              </div>
-
-              {/* Blooming Cards */}
-              {bloomingCapabilities.map((capability, index) => {
-                const progress = Math.max(0, Math.min(1, (bloomingCapabilitiesProgress - index * 0.2) * 2));
-                const scale = progress;
-                const opacity = progress;
-                
-                let position = {};
-                switch(capability.position) {
-                  case 'top-left':
-                    position = { top: '10%', left: '5%' };
-                    break;
-                  case 'top-right':
-                    position = { top: '10%', right: '5%' };
-                    break;
-                  case 'bottom-left':
-                    position = { bottom: '10%', left: '5%' };
-                    break;
-                  case 'bottom-right':
-                    position = { bottom: '10%', right: '5%' };
-                    break;
-                }
-
-                return (
-                  <div
-                    key={capability.id}
-                    className="absolute w-80 transition-all duration-1000 ease-out"
-                    style={{
-                      ...position,
-                      transform: `scale(${scale})`,
-                      opacity: opacity
-                    }}
-                  >
-                    <div className="bg-white/95 backdrop-blur-sm rounded-2xl shadow-2xl p-6 border border-white/20">
-                      <div className="flex items-center space-x-3 mb-4">
-                        <div className="text-2xl">{capability.icon}</div>
-                        <h3 className="text-xl font-bold text-voiceup-navy">
-                          {capability.title}
-                        </h3>
-                      </div>
-                      <p className="text-gray-700 leading-relaxed mb-4">
-                        {capability.description}
-                      </p>
-                      <Button 
-                        asChild
-                        className="bg-voiceup-skyblue hover:bg-voiceup-periwinkle text-white rounded-full text-sm"
-                      >
-                        <Link to="/solutions">Read More →</Link>
-                      </Button>
-                    </div>
-                  </div>
-                );
-              })}
-            </div>
-          </div>
-        </div>
-      </section>
-
       {/* Scroll-triggered Platform Capabilities */}
       <section ref={scrollCapabilitiesRef} className="py-20 bg-gradient-to-br from-voiceup-navy via-indigo-900 to-purple-900 relative overflow-hidden min-h-[300vh]">
         {/* Enhanced Moving Background */}
@@ -521,23 +352,35 @@ const Index = () => {
 
       {/* Enhanced Demo Video Section */}
       <section ref={videoSectionRef} className="py-20 bg-voiceup-navy relative overflow-hidden">
-        {/* Moving background */}
+        {/* Enhanced Moving Background */}
         <div className="absolute inset-0 pointer-events-none">
+          {/* Animated mesh gradient */}
           <div className="absolute inset-0 bg-gradient-to-br from-purple-900/30 via-blue-900/30 to-indigo-900/30 animate-pulse"></div>
           
-          {/* Floating tech elements */}
-          {[...Array(30)].map((_, i) => (
+          {/* Floating data streams */}
+          {[...Array(20)].map((_, i) => (
             <div
-              key={`tech-${i}`}
-              className="absolute w-2 h-2 bg-gradient-to-r from-cyan-400/60 to-blue-500/60 rounded-full"
+              key={`stream-${i}`}
+              className="absolute w-px h-24 bg-gradient-to-b from-transparent via-voiceup-skyblue/60 to-transparent"
               style={{
                 left: `${Math.random() * 100}%`,
                 top: `${Math.random() * 100}%`,
-                animation: `float ${3 + Math.random() * 4}s ease-in-out infinite`,
+                animation: `float ${4 + Math.random() * 3}s ease-in-out infinite`,
                 animationDelay: `${Math.random() * 2}s`
               }}
             />
           ))}
+          
+          {/* Circuit board pattern */}
+          <svg className="absolute inset-0 w-full h-full opacity-20" viewBox="0 0 100 100">
+            <defs>
+              <pattern id="circuit" x="0" y="0" width="10" height="10" patternUnits="userSpaceOnUse">
+                <path d="M 0 5 L 10 5 M 5 0 L 5 10" stroke="rgba(99, 102, 241, 0.3)" strokeWidth="0.5"/>
+                <circle cx="5" cy="5" r="1" fill="rgba(99, 102, 241, 0.5)"/>
+              </pattern>
+            </defs>
+            <rect width="100%" height="100%" fill="url(#circuit)"/>
+          </svg>
         </div>
 
         <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 text-center relative z-10">
@@ -550,23 +393,11 @@ const Index = () => {
             </p>
           </div>
           
-          <div 
-            className={`relative transition-all duration-1000 ${videoInView ? 'opacity-100 scale-100' : 'opacity-0 scale-95'}`} 
-            style={{ 
-              transitionDelay: '300ms',
-              transform: `scale(${0.6 + videoScrollProgress * 0.4})`,
-              width: videoScrollProgress > 0.5 ? '100vw' : 'auto',
-              height: videoScrollProgress > 0.5 ? '100vh' : 'auto',
-              position: videoScrollProgress > 0.5 ? 'fixed' : 'relative',
-              top: videoScrollProgress > 0.5 ? '0' : 'auto',
-              left: videoScrollProgress > 0.5 ? '0' : 'auto',
-              zIndex: videoScrollProgress > 0.5 ? 50 : 10
-            }}
-          >
+          <div className={`relative transition-all duration-1000 ${videoInView ? 'opacity-100 scale-100' : 'opacity-0 scale-95'}`} style={{ transitionDelay: '300ms' }}>
             {/* Enhanced Animated Border */}
             <div className="relative rounded-3xl overflow-hidden shadow-2xl">
               <div className="absolute inset-0 bg-gradient-to-r from-voiceup-skyblue via-voiceup-periwinkle to-voiceup-lavender p-2 rounded-3xl">
-                <div className="absolute inset-0 bg-gradient-to-r from-voiceup-skyblue via-voiceup-periwinkle to-voiceup-lavender rounded-3xl" style={{ animation: 'spin 10s linear infinite' }}></div>
+                <div className="absolute inset-0 bg-gradient-to-r from-voiceup-skyblue via-voiceup-periwinkle to-voiceup-lavender rounded-3xl animate-spin" style={{ animationDuration: '10s' }}></div>
                 <div className="bg-voiceup-navy rounded-2xl h-full relative z-10"></div>
               </div>
               
@@ -574,85 +405,93 @@ const Index = () => {
               <div className="relative bg-gradient-to-br from-voiceup-skyblue to-voiceup-periwinkle p-3 rounded-3xl">
                 <div className="bg-gradient-to-br from-gray-900 to-voiceup-navy rounded-2xl overflow-hidden">
                   <div className="aspect-video relative overflow-hidden">
-                    {/* Moving GIF-like Thumbnail */}
-                    <div className="absolute inset-0 bg-gradient-to-br from-blue-900 via-purple-900 to-indigo-900 overflow-hidden">
-                      {/* Animated data streams */}
-                      {[...Array(6)].map((_, i) => (
-                        <div
-                          key={`stream-${i}`}
-                          className="absolute h-full bg-gradient-to-b from-transparent via-cyan-400/60 to-transparent"
-                          style={{
-                            width: '2px',
-                            left: `${15 + i * 15}%`,
-                            animation: `moveUp ${2 + i * 0.5}s ease-in-out infinite`,
-                            animationDelay: `${i * 0.3}s`
-                          }}
-                        />
-                      ))}
-                      
-                      {/* Rotating radar sweep */}
-                      <div className="absolute top-1/4 left-1/4 w-32 h-32 border-2 border-green-400/50 rounded-full">
-                        <div 
-                          className="absolute inset-0 bg-gradient-to-r from-green-400/80 to-transparent rounded-full"
-                          style={{
-                            clipPath: 'polygon(50% 50%, 50% 0%, 100% 50%)',
-                            animation: 'spin 3s linear infinite'
-                          }}
-                        />
-                      </div>
-                      
-                      {/* Pulsing nodes */}
-                      {[...Array(8)].map((_, i) => (
-                        <div
-                          key={`node-${i}`}
-                          className="absolute w-3 h-3 bg-cyan-400 rounded-full animate-pulse"
-                          style={{
-                            left: `${20 + i * 10}%`,
-                            top: `${30 + (i % 3) * 20}%`,
-                            animationDelay: `${i * 0.2}s`
-                          }}
-                        />
-                      ))}
-                      
-                      {/* Moving waveform */}
-                      <div className="absolute bottom-1/3 left-1/4 right-1/4 flex items-end space-x-1">
-                        {[...Array(20)].map((_, i) => (
+                    {/* Dynamic Animated Thumbnail */}
+                    <div className="absolute inset-0 bg-gradient-to-br from-blue-900 via-purple-900 to-indigo-900">
+                      {/* Multiple animated layers */}
+                      <div className="absolute inset-0">
+                        {/* Data flow animation */}
+                        {[...Array(12)].map((_, i) => (
                           <div
-                            key={`wave-${i}`}
-                            className="bg-gradient-to-t from-green-400 to-cyan-400 rounded-t-sm"
+                            key={`flow-${i}`}
+                            className="absolute w-2 h-2 bg-cyan-400 rounded-full animate-pulse"
                             style={{
-                              width: '3px',
-                              height: `${10 + Math.sin(Date.now() * 0.005 + i * 0.5) * 20}px`,
-                              animation: `waveMove ${1 + Math.random()}s ease-in-out infinite`,
+                              left: `${10 + i * 8}%`,
+                              top: `${20 + (i % 3) * 30}%`,
+                              animation: `pulse ${1 + i * 0.2}s ease-in-out infinite`,
                               animationDelay: `${i * 0.1}s`
                             }}
                           />
                         ))}
-                      </div>
-                      
-                      {/* Floating UI elements */}
-                      <div className="absolute top-6 left-6 bg-black/60 rounded-lg p-2 backdrop-blur-sm animate-fade-in">
-                        <div className="text-green-400 text-xs font-mono">REAL-TIME AI</div>
-                      </div>
-                      <div className="absolute top-6 right-6 bg-black/60 rounded-lg p-2 backdrop-blur-sm animate-fade-in" style={{ animationDelay: '1s' }}>
-                        <div className="text-cyan-400 text-xs font-mono">PROCESSING</div>
-                      </div>
-                      <div className="absolute bottom-16 left-6 bg-black/60 rounded-lg p-2 backdrop-blur-sm animate-fade-in" style={{ animationDelay: '2s' }}>
-                        <div className="text-purple-400 text-xs font-mono">VOICE ANALYTICS</div>
+                        
+                        {/* Waveform visualization */}
+                        <div className="absolute bottom-1/4 left-1/4 right-1/4 flex items-end space-x-1">
+                          {[...Array(20)].map((_, i) => (
+                            <div
+                              key={`wave-${i}`}
+                              className="bg-gradient-to-t from-green-400 to-cyan-400 rounded-t-sm animate-pulse"
+                              style={{
+                                width: '4px',
+                                height: `${10 + Math.random() * 40}px`,
+                                animationDelay: `${i * 0.1}s`,
+                                animationDuration: `${1 + Math.random()}s`
+                              }}
+                            />
+                          ))}
+                        </div>
+                        
+                        {/* Network nodes */}
+                        <div className="absolute top-1/4 left-1/3 w-16 h-16 border-2 border-cyan-400 rounded-full flex items-center justify-center animate-ping">
+                          <div className="w-8 h-8 bg-cyan-400 rounded-full"></div>
+                        </div>
+                        
+                        {/* Floating text elements */}
+                        <div className="absolute top-8 left-8 text-white text-sm animate-fade-in">
+                          <div className="bg-black/40 rounded-lg p-2 backdrop-blur-sm">
+                            Real-time AI Processing
+                          </div>
+                        </div>
+                        <div className="absolute top-8 right-8 text-cyan-300 text-xs animate-fade-in" style={{ animationDelay: '1s' }}>
+                          <div className="bg-black/40 rounded-lg p-2 backdrop-blur-sm">
+                            Multi-channel Integration
+                          </div>
+                        </div>
+                        <div className="absolute bottom-20 left-8 text-green-300 text-xs animate-fade-in" style={{ animationDelay: '2s' }}>
+                          <div className="bg-black/40 rounded-lg p-2 backdrop-blur-sm">
+                            Voice Analytics Dashboard
+                          </div>
+                        </div>
                       </div>
                     </div>
                     
                     {/* Enhanced Play Button Overlay */}
                     <div className="absolute inset-0 flex items-center justify-center bg-black/20 hover:bg-black/30 transition-colors duration-300 cursor-pointer group">
                       <div className="relative">
-                        <div className="w-20 h-20 bg-white/90 rounded-full flex items-center justify-center shadow-2xl group-hover:scale-110 transition-transform duration-300 relative z-10">
-                          <svg className="w-8 h-8 text-voiceup-navy ml-1" fill="currentColor" viewBox="0 0 24 24">
+                        <div className="w-24 h-24 bg-white/90 rounded-full flex items-center justify-center shadow-2xl group-hover:scale-110 transition-transform duration-300 relative z-10">
+                          <svg className="w-10 h-10 text-voiceup-navy ml-1" fill="currentColor" viewBox="0 0 24 24">
                             <path d="M8 5v14l11-7z"/>
                           </svg>
                         </div>
-                        {/* Multiple ripple effects */}
-                        <div className="absolute inset-0 w-20 h-20 border-2 border-white/50 rounded-full animate-ping"></div>
-                        <div className="absolute inset-0 w-20 h-20 border-2 border-white/30 rounded-full animate-ping" style={{ animationDelay: '0.5s' }}></div>
+                        {/* Ripple effect */}
+                        <div className="absolute inset-0 w-24 h-24 border-4 border-white/50 rounded-full animate-ping"></div>
+                      </div>
+                    </div>
+                    
+                    {/* Enhanced progress bar mockup */}
+                    <div className="absolute bottom-4 left-4 right-4 bg-black/60 rounded-lg p-3 backdrop-blur-sm">
+                      <div className="flex items-center space-x-3 text-white text-sm">
+                        <div className="w-3 h-3 bg-green-400 rounded-full animate-pulse"></div>
+                        <span className="font-mono">2:05</span>
+                        <div className="flex-1 bg-gray-600 rounded-full h-2 relative overflow-hidden">
+                          <div className="bg-gradient-to-r from-voiceup-skyblue to-green-400 h-2 rounded-full w-1/3 relative">
+                            <div className="absolute inset-0 bg-white/30 rounded-full animate-pulse"></div>
+                          </div>
+                        </div>
+                        <span className="font-mono">5:30</span>
+                        <div className="flex space-x-1">
+                          <div className="w-1 h-1 bg-white rounded-full animate-pulse"></div>
+                          <div className="w-1 h-1 bg-white rounded-full animate-pulse" style={{ animationDelay: '0.5s' }}></div>
+                          <div className="w-1 h-1 bg-white rounded-full animate-pulse" style={{ animationDelay: '1s' }}></div>
+                        </div>
                       </div>
                     </div>
                   </div>
@@ -676,9 +515,9 @@ const Index = () => {
           </div>
 
           <div className="bg-gradient-to-br from-yellow-50 to-yellow-100 rounded-3xl shadow-2xl p-8 lg:p-12 relative border-4 border-yellow-200">
-            <div className="relative max-w-5xl mx-auto">
-              {/* Architecture Layout */}
-              <div className="flex flex-col items-center space-y-12">
+            <div className="relative max-w-4xl mx-auto">
+              {/* Architecture Layout - Proper positioning */}
+              <div className="flex flex-col items-center space-y-8">
                 
                 {/* Top Row - PSTN */}
                 <div className="relative">
@@ -686,94 +525,97 @@ const Index = () => {
                     <div className="bg-gradient-to-r from-blue-500 to-blue-600 text-white px-8 py-4 rounded-2xl shadow-lg cursor-pointer hover:shadow-2xl transition-all duration-300 hover:scale-105 border-2 border-blue-400">
                       <span className="font-bold text-lg">PSTN</span>
                     </div>
+                    <div className="absolute top-2 right-2 w-3 h-3 bg-green-400 rounded-full animate-pulse"></div>
                   </div>
                 </div>
 
                 {/* Connection Line */}
                 <div className="flex flex-col items-center">
-                  <div className="w-0.5 h-12 bg-gray-400"></div>
+                  <div className="w-0.5 h-8 bg-gray-400"></div>
                   <span className="text-xs bg-gray-200 px-3 py-1 rounded-full font-semibold border">SIP</span>
-                  <div className="w-0.5 h-12 bg-gray-400"></div>
+                  <div className="w-0.5 h-8 bg-gray-400"></div>
                 </div>
 
                 {/* Second Row - SBC, VoiceUp Service, AI Service */}
-                <div className="w-full max-w-6xl">
-                  <div className="grid grid-cols-3 gap-16 items-center">
-                    <div className="flex flex-col items-center">
-                      <div className="group relative">
-                        <div className="bg-gradient-to-r from-blue-600 to-blue-700 text-white px-8 py-4 rounded-2xl shadow-lg cursor-pointer hover:shadow-2xl transition-all duration-300 hover:scale-105 border-2 border-blue-500">
-                          <span className="font-bold text-lg">SBC</span>
-                        </div>
+                <div className="grid grid-cols-3 gap-8 items-center w-full max-w-4xl">
+                  <div className="flex flex-col items-center">
+                    <div className="group relative">
+                      <div className="bg-gradient-to-r from-blue-600 to-blue-700 text-white px-8 py-4 rounded-2xl shadow-lg cursor-pointer hover:shadow-2xl transition-all duration-300 hover:scale-105 border-2 border-blue-500">
+                        <span className="font-bold text-lg">SBC</span>
                       </div>
-                    </div>
-
-                    <div className="flex flex-col items-center">
-                      <div className="group relative">
-                        <div className="bg-gradient-to-r from-voiceup-skyblue to-voiceup-periwinkle text-white px-10 py-6 rounded-2xl shadow-lg cursor-pointer hover:shadow-2xl transition-all duration-300 hover:scale-105 border-2 border-voiceup-navy">
-                          <div className="flex flex-col items-center">
-                            <Mic className="h-6 w-6 mb-2" />
-                            <span className="font-bold text-lg">VoiceUp Service</span>
-                          </div>
-                        </div>
-                      </div>
-                    </div>
-
-                    <div className="flex flex-col items-center">
-                      <div className="group relative">
-                        <div className="bg-gradient-to-r from-purple-500 to-purple-600 text-white px-10 py-6 rounded-2xl shadow-lg cursor-pointer hover:shadow-2xl transition-all duration-300 hover:scale-105 border-2 border-purple-400">
-                          <div className="flex flex-col items-center">
-                            <Bot className="h-6 w-6 mb-2" />
-                            <span className="font-bold text-lg">AI Service</span>
-                          </div>
-                        </div>
-                      </div>
+                      <div className="absolute top-2 right-2 w-3 h-3 bg-green-400 rounded-full animate-pulse"></div>
                     </div>
                   </div>
 
-                  {/* Connection lines between components */}
-                  <div className="grid grid-cols-3 gap-16 mt-6">
-                    <div className="flex justify-center">
-                      <span className="text-xs bg-gray-200 px-3 py-1 rounded-full font-semibold border">SIPREC/SIP</span>
+                  <div className="flex flex-col items-center">
+                    <div className="group relative">
+                      <div className="bg-gradient-to-r from-voiceup-skyblue to-voiceup-periwinkle text-white px-10 py-6 rounded-2xl shadow-lg cursor-pointer hover:shadow-2xl transition-all duration-300 hover:scale-105 border-2 border-voiceup-navy">
+                        <div className="flex flex-col items-center">
+                          <Mic className="h-6 w-6 mb-2" />
+                          <span className="font-bold text-lg">VoiceUp Service</span>
+                        </div>
+                      </div>
+                      <div className="absolute top-2 right-2 w-3 h-3 bg-green-400 rounded-full animate-pulse"></div>
                     </div>
-                    <div></div>
-                    <div className="flex justify-center">
-                      <span className="text-xs bg-gray-200 px-3 py-1 rounded-full font-semibold border">API</span>
+                  </div>
+
+                  <div className="flex flex-col items-center">
+                    <div className="group relative">
+                      <div className="bg-gradient-to-r from-purple-500 to-purple-600 text-white px-10 py-6 rounded-2xl shadow-lg cursor-pointer hover:shadow-2xl transition-all duration-300 hover:scale-105 border-2 border-purple-400">
+                        <div className="flex flex-col items-center">
+                          <Bot className="h-6 w-6 mb-2" />
+                          <span className="font-bold text-lg">AI Service</span>
+                        </div>
+                      </div>
+                      <div className="absolute top-2 right-2 w-3 h-3 bg-green-400 rounded-full animate-pulse"></div>
                     </div>
+                  </div>
+                </div>
+
+                {/* Connection lines between SBC and VoiceUp, VoiceUp and AI */}
+                <div className="grid grid-cols-3 gap-8 w-full max-w-4xl">
+                  <div className="flex justify-center">
+                    <span className="text-xs bg-gray-200 px-3 py-1 rounded-full font-semibold border">SIPREC/SIP</span>
+                  </div>
+                  <div></div>
+                  <div className="flex justify-center">
+                    <span className="text-xs bg-gray-200 px-3 py-1 rounded-full font-semibold border">API</span>
                   </div>
                 </div>
 
                 {/* Connection from SBC to PBX */}
-                <div className="flex justify-start w-full max-w-6xl">
-                  <div className="flex flex-col items-center" style={{ marginLeft: '16.67%' }}>
-                    <div className="w-0.5 h-12 bg-gray-400"></div>
+                <div className="flex justify-start w-full max-w-4xl">
+                  <div className="flex flex-col items-center" style={{ marginLeft: '12.5%' }}>
+                    <div className="w-0.5 h-8 bg-gray-400"></div>
                     <span className="text-xs bg-gray-200 px-3 py-1 rounded-full font-semibold border">SIP</span>
-                    <div className="w-0.5 h-12 bg-gray-400"></div>
+                    <div className="w-0.5 h-8 bg-gray-400"></div>
                   </div>
                 </div>
 
-                {/* PBX Row */}
-                <div className="flex justify-start w-full max-w-6xl">
-                  <div className="group relative" style={{ marginLeft: '16.67%' }}>
+                {/* PBX Row - Positioned under SBC */}
+                <div className="flex justify-start w-full max-w-4xl">
+                  <div className="group relative" style={{ marginLeft: '12.5%' }}>
                     <div className="bg-gradient-to-r from-blue-600 to-blue-700 text-white px-12 py-6 rounded-2xl shadow-lg cursor-pointer hover:shadow-2xl transition-all duration-300 hover:scale-105 border-2 border-blue-500">
                       <div className="flex items-center space-x-3">
                         <PhoneCall className="h-6 w-6" />
                         <span className="font-bold text-lg">PBX</span>
                       </div>
                     </div>
+                    <div className="absolute top-2 right-2 w-3 h-3 bg-green-400 rounded-full animate-pulse"></div>
                   </div>
                 </div>
 
                 {/* Vertical connection from VoiceUp Service to Agent Desktops */}
                 <div className="flex justify-center">
                   <div className="flex flex-col items-center">
-                    <div className="w-0.5 h-16 bg-gray-400"></div>
-                    <div className="w-4 h-4 bg-voiceup-skyblue rounded-full animate-pulse"></div>
                     <div className="w-0.5 h-12 bg-gray-400"></div>
+                    <div className="w-4 h-4 bg-voiceup-skyblue rounded-full animate-pulse"></div>
+                    <div className="w-0.5 h-8 bg-gray-400"></div>
                   </div>
                 </div>
 
                 {/* Agent Desktop Level */}
-                <div className="flex items-center justify-center space-x-12 relative">
+                <div className="flex items-center justify-center space-x-8 relative">
                   {[1, 2, 3].map((i) => (
                     <div key={i} className="group relative">
                       <div className="bg-gradient-to-br from-voiceup-skyblue to-voiceup-periwinkle text-white px-6 py-6 rounded-2xl shadow-lg cursor-pointer hover:shadow-2xl hover:scale-105 transition-all duration-300 border-2 border-voiceup-navy">
@@ -783,12 +625,13 @@ const Index = () => {
                           <div className="text-xs">Agent Desktop</div>
                         </div>
                       </div>
+                      <div className="absolute top-2 right-2 w-2 h-2 bg-green-400 rounded-full animate-pulse"></div>
                     </div>
                   ))}
                 </div>
 
                 {/* Customer Premise Label */}
-                <div className="mt-12 text-center">
+                <div className="mt-8 text-center">
                   <div className="inline-block px-8 py-3 bg-gradient-to-r from-yellow-400 to-yellow-500 rounded-full shadow-lg border-2 border-yellow-300">
                     <span className="text-yellow-900 font-bold text-lg">Customer Premise</span>
                   </div>
@@ -811,17 +654,6 @@ const Index = () => {
           0%, 20%, 50%, 80%, 100% { transform: translateY(0); }
           40% { transform: translateY(10px); }
           60% { transform: translateY(5px); }
-        }
-        
-        @keyframes moveUp {
-          0% { transform: translateY(100%); opacity: 0; }
-          50% { opacity: 1; }
-          100% { transform: translateY(-100%); opacity: 0; }
-        }
-        
-        @keyframes waveMove {
-          0%, 100% { height: 10px; }
-          50% { height: 30px; }
         }
         
         .animate-bounce-down {
