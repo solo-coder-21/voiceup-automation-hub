@@ -1,7 +1,7 @@
 
 import React, { useState, useEffect, useRef } from 'react';
 import { Link } from 'react-router-dom';
-import { ArrowDown, Mic, BarChart3, Users, Bot, PhoneCall, Search, Zap } from 'lucide-react';
+import { ArrowDown, Mic, BarChart3, Users, Bot, PhoneCall, Search, Zap, Shield, MessageSquare } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import Navbar from '@/components/Navbar';
 import Footer from '@/components/Footer';
@@ -10,8 +10,9 @@ const Index = () => {
   const [hoveredCapability, setHoveredCapability] = useState<number | null>(null);
   const [isInView, setIsInView] = useState(false);
   const [videoInView, setVideoInView] = useState(false);
-  const [videoExpanded, setVideoExpanded] = useState(false);
+  const [videoScale, setVideoScale] = useState(0.6);
   const [platformCapabilitiesInView, setPlatformCapabilitiesInView] = useState(false);
+  const [expandedCards, setExpandedCards] = useState(false);
   const dynamicSectionRef = useRef<HTMLDivElement>(null);
   const videoSectionRef = useRef<HTMLDivElement>(null);
   const platformCapabilitiesRef = useRef<HTMLDivElement>(null);
@@ -19,39 +20,51 @@ const Index = () => {
   const capabilities = [
     {
       id: 1,
-      title: "Multiple channels",
-      icon: <Zap className="h-8 w-8" />,
-      content: "Use voice, SMS, email and chat in sync to boost engagement and maximize collections.",
-      image: "https://images.unsplash.com/photo-1558494949-ef010cbdcc31?w=600&h=400&fit=crop",
+      title: "Speech Recognition",
+      icon: <Mic className="h-8 w-8" />,
+      content: "Advanced AI-powered speech recognition that accurately transcribes conversations in real-time across multiple languages and accents.",
+      image: "https://images.unsplash.com/photo-1589254065878-42c9da997008?w=600&h=400&fit=crop",
       color: "from-voiceup-skyblue to-voiceup-periwinkle",
-      position: "top-left"
     },
     {
       id: 2,
-      title: "Compliance", 
-      icon: <Mic className="h-8 w-8" />,
-      content: "The only compliance-first Omnichannel Conversational AI solution.",
-      image: "https://images.unsplash.com/photo-1589254065878-42c9da997008?w=600&h=400&fit=crop",
+      title: "Call Recording", 
+      icon: <PhoneCall className="h-8 w-8" />,
+      content: "Secure, compliant call recording with intelligent indexing and searchable transcripts for quality assurance and training.",
+      image: "https://images.unsplash.com/photo-1516321318423-f06f85e504b3?w=600&h=400&fit=crop",
       color: "from-voiceup-periwinkle to-voiceup-navy",
-      position: "top-right"
     },
     {
       id: 3,
-      title: "Analytics",
+      title: "Real-time Analytics",
       icon: <BarChart3 className="h-8 w-8" />,
-      content: "Single dashboard view of every campaign outcome featuring trends and actionable insights.",
-      image: "https://images.unsplash.com/photo-1516321318423-f06f85e504b3?w=600&h=400&fit=crop",
+      content: "Comprehensive dashboard with real-time insights, performance metrics, and actionable intelligence for data-driven decisions.",
+      image: "https://images.unsplash.com/photo-1551288049-bebda4e38f71?w=600&h=400&fit=crop",
       color: "from-voiceup-navy to-voiceup-skyblue",
-      position: "bottom-left"
     },
     {
       id: 4,
-      title: "Integrations",
+      title: "Agent Assistance",
       icon: <Users className="h-8 w-8" />,
-      content: "A vast array of out-of-the-box integrations with CRMs, payment gateways, telephony, and SMS solutions.",
-      image: "https://images.unsplash.com/photo-1551288049-bebda4e38f71?w=600&h=400&fit=crop",
+      content: "AI-powered real-time agent coaching with sentiment analysis, script suggestions, and performance optimization tools.",
+      image: "https://images.unsplash.com/photo-1558494949-ef010cbdcc31?w=600&h=400&fit=crop",
       color: "from-voiceup-skyblue to-voiceup-lavender",
-      position: "bottom-right"
+    },
+    {
+      id: 5,
+      title: "Compliance Monitoring",
+      icon: <Shield className="h-8 w-8" />,
+      content: "Automated compliance monitoring ensuring adherence to regulatory requirements with alerts and detailed reporting.",
+      image: "https://images.unsplash.com/photo-1551434678-e076c223a692?w=600&h=400&fit=crop",
+      color: "from-voiceup-lavender to-voiceup-periwinkle",
+    },
+    {
+      id: 6,
+      title: "Omnichannel Support",
+      icon: <MessageSquare className="h-8 w-8" />,
+      content: "Unified communication platform supporting voice, chat, email, and SMS with seamless agent workflow integration.",
+      image: "https://images.unsplash.com/photo-1516321497487-e288fb19713f?w=600&h=400&fit=crop",
+      color: "from-voiceup-periwinkle to-voiceup-navy",
     }
   ];
 
@@ -68,14 +81,18 @@ const Index = () => {
     const videoObserver = new IntersectionObserver(
       ([entry]) => {
         setVideoInView(entry.isIntersecting);
-        setVideoExpanded(entry.isIntersecting);
       },
-      { threshold: 0.2 }
+      { threshold: 0.1 }
     );
 
     const platformCapabilitiesObserver = new IntersectionObserver(
       ([entry]) => {
         setPlatformCapabilitiesInView(entry.isIntersecting);
+        if (entry.isIntersecting) {
+          setTimeout(() => setExpandedCards(true), 500);
+        } else {
+          setExpandedCards(false);
+        }
       },
       { threshold: 0.3 }
     );
@@ -97,6 +114,41 @@ const Index = () => {
       videoObserver.disconnect();
       platformCapabilitiesObserver.disconnect();
     };
+  }, []);
+
+  // Video scaling effect based on scroll position
+  useEffect(() => {
+    const handleScroll = () => {
+      if (!videoSectionRef.current) return;
+      
+      const section = videoSectionRef.current;
+      const rect = section.getBoundingClientRect();
+      const windowHeight = window.innerHeight;
+      
+      // Calculate progress through the section (0 to 1)
+      const sectionHeight = rect.height;
+      const sectionTop = rect.top;
+      const sectionBottom = rect.bottom;
+      
+      if (sectionTop <= windowHeight && sectionBottom >= 0) {
+        // Calculate distance from center of viewport
+        const sectionCenter = sectionTop + sectionHeight / 2;
+        const viewportCenter = windowHeight / 2;
+        const distanceFromCenter = Math.abs(sectionCenter - viewportCenter);
+        const maxDistance = windowHeight / 2 + sectionHeight / 2;
+        
+        // Scale based on distance from center (closer = larger)
+        const progress = Math.max(0, 1 - distanceFromCenter / maxDistance);
+        const scale = 0.6 + (progress * 0.4); // Scale from 0.6 to 1.0
+        
+        setVideoScale(Math.min(1, Math.max(0.6, scale)));
+      }
+    };
+
+    window.addEventListener('scroll', handleScroll);
+    handleScroll(); // Initial call
+    
+    return () => window.removeEventListener('scroll', handleScroll);
   }, []);
 
   return (
@@ -219,16 +271,22 @@ const Index = () => {
       </section>
 
       {/* New Platform Capabilities Section - Redesigned */}
-      <section ref={platformCapabilitiesRef} className="py-20 bg-gradient-to-br from-indigo-900 via-blue-900 to-purple-900 relative overflow-hidden min-h-screen">
-        {/* Animated Background */}
+      <section ref={platformCapabilitiesRef} className="py-20 bg-gradient-to-br from-slate-900 via-blue-900 to-indigo-900 relative overflow-hidden min-h-screen">
+        {/* Moving Background */}
         <div className="absolute inset-0 pointer-events-none">
-          <div className="absolute inset-0 bg-gradient-to-br from-blue-900/30 via-purple-900/30 to-indigo-900/30"></div>
+          <div 
+            className="absolute inset-0 opacity-30"
+            style={{
+              backgroundImage: `url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' fill-rule='evenodd'%3E%3Cg fill='%234F46E5' fill-opacity='0.1'%3E%3Ccircle cx='30' cy='30' r='4'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E")`,
+              animation: 'float 20s ease-in-out infinite'
+            }}
+          />
           
           {/* Floating particles */}
-          {[...Array(50)].map((_, i) => (
+          {[...Array(30)].map((_, i) => (
             <div
               key={i}
-              className="absolute w-1 h-1 bg-cyan-400/60 rounded-full"
+              className="absolute w-2 h-2 bg-blue-400/40 rounded-full"
               style={{
                 left: `${Math.random() * 100}%`,
                 top: `${Math.random() * 100}%`,
@@ -237,29 +295,6 @@ const Index = () => {
               }}
             />
           ))}
-          
-          {/* Connecting lines */}
-          <svg className="absolute inset-0 w-full h-full opacity-20" viewBox="0 0 1000 1000">
-            <defs>
-              <linearGradient id="line-gradient" x1="0%" y1="0%" x2="100%" y2="100%">
-                <stop offset="0%" stopColor="rgba(59, 130, 246, 0.3)" />
-                <stop offset="100%" stopColor="rgba(139, 92, 246, 0.3)" />
-              </linearGradient>
-            </defs>
-            {/* Radial lines emanating from center */}
-            {[...Array(12)].map((_, i) => (
-              <line
-                key={i}
-                x1="500"
-                y1="500"
-                x2={500 + Math.cos((i * 30 * Math.PI) / 180) * 300}
-                y2={500 + Math.sin((i * 30 * Math.PI) / 180) * 300}
-                stroke="url(#line-gradient)"
-                strokeWidth="1"
-                opacity="0.3"
-              />
-            ))}
-          </svg>
         </div>
 
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10 h-full flex flex-col justify-center">
@@ -273,162 +308,92 @@ const Index = () => {
           </div>
 
           <div className="relative flex items-center justify-center min-h-[600px]">
-            {/* Central AI Circle */}
-            <div className="absolute inset-0 flex items-center justify-center">
-              <div className="relative">
-                {/* Outer rotating ring */}
-                <div className="w-80 h-80 border-4 border-cyan-400/30 rounded-full animate-spin" style={{ animationDuration: '20s' }}>
-                  <div className="absolute inset-2 border-2 border-purple-400/20 rounded-full animate-spin" style={{ animationDuration: '15s', animationDirection: 'reverse' }}></div>
-                </div>
-                
-                {/* Inner AI core */}
-                <div className="absolute inset-0 flex items-center justify-center">
-                  <div className="w-32 h-32 bg-gradient-to-r from-cyan-400 via-blue-500 to-purple-600 rounded-full flex items-center justify-center shadow-2xl animate-pulse">
-                    <div className="w-24 h-24 bg-gradient-to-r from-blue-600 to-purple-700 rounded-full flex items-center justify-center relative overflow-hidden">
-                      <div className="text-3xl font-bold text-white z-10">AI</div>
-                      <div className="absolute inset-0 bg-gradient-to-r from-cyan-400/20 to-purple-400/20 rounded-full animate-ping"></div>
+            {/* Small Icons (Initial state) */}
+            {!expandedCards && (
+              <div className="grid grid-cols-3 gap-8">
+                {capabilities.map((capability, index) => (
+                  <div
+                    key={capability.id}
+                    className="flex flex-col items-center space-y-2 animate-fade-in"
+                    style={{ animationDelay: `${index * 0.1}s` }}
+                  >
+                    <div className="w-16 h-16 bg-white/10 backdrop-blur-sm rounded-full flex items-center justify-center border border-cyan-400/30 hover:bg-white/20 transition-colors">
+                      <div className="text-cyan-300">
+                        {capability.icon}
+                      </div>
                     </div>
+                    <span className="text-white text-sm font-medium text-center">
+                      {capability.title}
+                    </span>
                   </div>
-                </div>
-
-                {/* Small capability icons around the circle */}
-                {!platformCapabilitiesInView && (
-                  <div className="absolute inset-0">
-                    {capabilities.map((capability, index) => {
-                      const angle = (index * 90) - 45; // Distribute in 4 corners
-                      const radius = 150;
-                      const x = Math.cos((angle * Math.PI) / 180) * radius;
-                      const y = Math.sin((angle * Math.PI) / 180) * radius;
-                      
-                      return (
-                        <div
-                          key={capability.id}
-                          className="absolute w-12 h-12 bg-white/20 backdrop-blur-sm rounded-full flex items-center justify-center border border-cyan-400/30 animate-pulse"
-                          style={{
-                            left: `calc(50% + ${x}px - 24px)`,
-                            top: `calc(50% + ${y}px - 24px)`,
-                            animationDelay: `${index * 0.2}s`
-                          }}
-                        >
-                          <div className="text-cyan-300 scale-75">
-                            {capability.icon}
-                          </div>
-                        </div>
-                      );
-                    })}
-                  </div>
-                )}
-
-                {/* Expanded capability cards */}
-                {platformCapabilitiesInView && (
-                  <div className="absolute inset-0">
-                    {capabilities.map((capability, index) => {
-                      const positions = {
-                        0: { x: -300, y: -200 }, // top-left
-                        1: { x: 300, y: -200 },  // top-right
-                        2: { x: -300, y: 200 },  // bottom-left
-                        3: { x: 300, y: 200 }    // bottom-right
-                      };
-                      
-                      const pos = positions[index as keyof typeof positions];
-                      
-                      return (
-                        <div
-                          key={capability.id}
-                          className="absolute animate-scale-in"
-                          style={{
-                            left: `calc(50% + ${pos.x}px - 150px)`,
-                            top: `calc(50% + ${pos.y}px - 125px)`,
-                            animationDelay: `${index * 0.2}s`
-                          }}
-                        >
-                          <div className="w-80 bg-white/95 backdrop-blur-sm rounded-2xl shadow-2xl p-6 border border-white/20">
-                            <div className="flex items-center space-x-4 mb-4">
-                              <div className="p-3 bg-voiceup-skyblue rounded-lg text-white">
-                                {capability.icon}
-                              </div>
-                              <h3 className="text-xl font-bold text-voiceup-navy">
-                                {capability.title}
-                              </h3>
-                            </div>
-                            <p className="text-gray-700 text-sm leading-relaxed mb-4">
-                              {capability.content}
-                            </p>
-                            <Button 
-                              size="sm"
-                              className="bg-voiceup-skyblue hover:bg-voiceup-periwinkle text-white rounded-full"
-                            >
-                              Read More →
-                            </Button>
-                          </div>
-                          
-                          {/* Connection line to center */}
-                          <svg 
-                            className="absolute inset-0 pointer-events-none"
-                            style={{
-                              left: pos.x > 0 ? '-150px' : '150px',
-                              top: pos.y > 0 ? '-125px' : '125px',
-                              width: Math.abs(pos.x),
-                              height: Math.abs(pos.y)
-                            }}
-                          >
-                            <line
-                              x1={pos.x > 0 ? 0 : Math.abs(pos.x)}
-                              y1={pos.y > 0 ? 0 : Math.abs(pos.y)}
-                              x2={pos.x > 0 ? Math.abs(pos.x) : 0}
-                              y2={pos.y > 0 ? Math.abs(pos.y) : 0}
-                              stroke="rgba(99, 102, 241, 0.4)"
-                              strokeWidth="2"
-                              strokeDasharray="5,5"
-                              className="animate-pulse"
-                            />
-                          </svg>
-                        </div>
-                      );
-                    })}
-                  </div>
-                )}
+                ))}
               </div>
-            </div>
+            )}
+
+            {/* Expanded Cards */}
+            {expandedCards && (
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 max-w-6xl">
+                {capabilities.map((capability, index) => (
+                  <div
+                    key={capability.id}
+                    className="bg-white/95 backdrop-blur-sm rounded-2xl shadow-2xl p-6 border border-white/20 animate-scale-in hover:scale-105 transition-transform"
+                    style={{ animationDelay: `${index * 0.1}s` }}
+                  >
+                    <div className="flex items-center space-x-4 mb-4">
+                      <div className="p-3 bg-voiceup-skyblue rounded-lg text-white">
+                        {capability.icon}
+                      </div>
+                      <h3 className="text-lg font-bold text-voiceup-navy">
+                        {capability.title}
+                      </h3>
+                    </div>
+                    <p className="text-gray-700 text-sm leading-relaxed mb-4">
+                      {capability.content}
+                    </p>
+                    <Button 
+                      size="sm"
+                      className="bg-voiceup-skyblue hover:bg-voiceup-periwinkle text-white rounded-full"
+                    >
+                      Learn More →
+                    </Button>
+                  </div>
+                ))}
+              </div>
+            )}
           </div>
         </div>
       </section>
 
       {/* Enhanced Demo Video Section */}
-      <section ref={videoSectionRef} className="py-20 bg-voiceup-navy relative overflow-hidden">
+      <section ref={videoSectionRef} className="py-20 bg-voiceup-navy relative overflow-hidden min-h-screen flex items-center">
         {/* Enhanced Moving Background */}
         <div className="absolute inset-0 pointer-events-none">
-          {/* Animated mesh gradient */}
-          <div className="absolute inset-0 bg-gradient-to-br from-purple-900/30 via-blue-900/30 to-indigo-900/30 animate-pulse"></div>
-          
-          {/* Floating data streams */}
-          {[...Array(20)].map((_, i) => (
-            <div
-              key={`stream-${i}`}
-              className="absolute w-px h-24 bg-gradient-to-b from-transparent via-voiceup-skyblue/60 to-transparent"
-              style={{
-                left: `${Math.random() * 100}%`,
-                top: `${Math.random() * 100}%`,
-                animation: `float ${4 + Math.random() * 3}s ease-in-out infinite`,
-                animationDelay: `${Math.random() * 2}s`
-              }}
-            />
-          ))}
+          <div 
+            className="absolute inset-0 opacity-20"
+            style={{
+              backgroundImage: `url("data:image/svg+xml,%3Csvg width='100' height='100' viewBox='0 0 100 100' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M11 18c3.866 0 7-3.134 7-7s-3.134-7-7-7-7 3.134-7 7 3.134 7 7 7zm48 25c3.866 0 7-3.134 7-7s-3.134-7-7-7-7 3.134-7 7 3.134 7 7 7zm-43-7c1.657 0 3-1.343 3-3s-1.343-3-3-3-3 1.343-3 3 1.343 3 3 3zm63 31c1.657 0 3-1.343 3-3s-1.343-3-3-3-3 1.343-3 3 1.343 3 3 3zM34 90c1.657 0 3-1.343 3-3s-1.343-3-3-3-3 1.343-3 3 1.343 3 3 3zm56-76c1.657 0 3-1.343 3-3s-1.343-3-3-3-3 1.343-3 3 1.343 3 3 3zM12 86c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm28-65c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm23-11c2.76 0 5-2.24 5-5s-2.24-5-5-5-5 2.24-5 5 2.24 5 5 5zm-6 60c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm29 22c2.76 0 5-2.24 5-5s-2.24-5-5-5-5 2.24-5 5 2.24 5 5 5zM32 63c2.76 0 5-2.24 5-5s-2.24-5-5-5-5 2.24-5 5 2.24 5 5 5zm57-13c2.76 0 5-2.24 5-5s-2.24-5-5-5-5 2.24-5 5 2.24 5 5 5zm-9-21c1.105 0 2-.895 2-2s-.895-2-2-2-2 .895-2 2 .895 2 2 2zM60 91c1.105 0 2-.895 2-2s-.895-2-2-2-2 .895-2 2 .895 2 2 2zM35 41c1.105 0 2-.895 2-2s-.895-2-2-2-2 .895-2 2 .895 2 2 2zM12 60c1.105 0 2-.895 2-2s-.895-2-2-2-2 .895-2 2 .895 2 2 2z' fill='%2360A5FA' fill-opacity='0.4' fill-rule='evenodd'/%3E%3C/svg%3E")`,
+              animation: 'float 25s ease-in-out infinite reverse'
+            }}
+          />
         </div>
 
-        <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 text-center relative z-10">
-          <div className={`transition-all duration-1000 ${videoInView ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-10'}`}>
+        <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 text-center relative z-10 w-full">
+          <div className={`transition-all duration-1000 mb-12 ${videoInView ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-10'}`}>
             <h2 className="text-4xl lg:text-5xl font-bold text-white mb-6">
               See How Enterprises Use VoiceUp
             </h2>
-            <p className="text-xl text-gray-300 mb-12 max-w-3xl mx-auto">
+            <p className="text-xl text-gray-300 max-w-3xl mx-auto">
               Watch real-world implementations and discover the transformative impact of our voice automation platform
             </p>
           </div>
           
-          <div className={`relative transition-all duration-1000 ${
-            videoExpanded ? 'scale-100 opacity-100' : 'scale-75 opacity-80'
-          }`} style={{ transitionDelay: '300ms' }}>
+          <div 
+            className="relative transition-all duration-700 ease-out mx-auto"
+            style={{ 
+              transform: `scale(${videoScale})`,
+              maxWidth: '900px'
+            }}
+          >
             {/* Enhanced Animated Border */}
             <div className="relative rounded-3xl overflow-hidden shadow-2xl">
               <div className="absolute inset-0 bg-gradient-to-r from-voiceup-skyblue via-voiceup-periwinkle to-voiceup-lavender p-2 rounded-3xl">
@@ -440,48 +405,67 @@ const Index = () => {
               <div className="relative bg-gradient-to-br from-voiceup-skyblue to-voiceup-periwinkle p-3 rounded-3xl">
                 <div className="bg-gradient-to-br from-gray-900 to-voiceup-navy rounded-2xl overflow-hidden">
                   <div className="aspect-video relative overflow-hidden">
-                    {/* Dynamic Animated Thumbnail - AI Related */}
+                    {/* Dynamic Moving Thumbnail - AI Related */}
                     <div className="absolute inset-0 bg-gradient-to-br from-blue-900 via-purple-900 to-indigo-900">
-                      {/* AI Brain Visualization */}
+                      {/* Moving Network Visualization */}
                       <div className="absolute inset-0 flex items-center justify-center">
-                        <div className="relative">
-                          {/* Neural network nodes */}
+                        <div className="relative w-full h-full">
+                          {/* Central AI Brain */}
+                          <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2">
+                            <div className="w-24 h-24 bg-gradient-to-r from-cyan-400 to-purple-500 rounded-full flex items-center justify-center animate-pulse shadow-lg">
+                              <Bot className="h-12 w-12 text-white" />
+                            </div>
+                          </div>
+                          
+                          {/* Orbiting Data Points */}
                           {[...Array(8)].map((_, i) => (
                             <div
-                              key={`node-${i}`}
-                              className="absolute w-3 h-3 bg-cyan-400 rounded-full animate-pulse"
+                              key={`orbit-${i}`}
+                              className="absolute w-4 h-4 bg-cyan-400 rounded-full animate-pulse"
                               style={{
-                                left: `${40 + Math.cos((i * 45 * Math.PI) / 180) * 60}px`,
-                                top: `${40 + Math.sin((i * 45 * Math.PI) / 180) * 60}px`,
-                                animationDelay: `${i * 0.2}s`
+                                left: `calc(50% + ${Math.cos((i * 45 * Math.PI) / 180) * 120}px - 8px)`,
+                                top: `calc(50% + ${Math.sin((i * 45 * Math.PI) / 180) * 120}px - 8px)`,
+                                animation: `orbit ${8 + i}s linear infinite`,
+                                animationDelay: `${i * 0.5}s`
                               }}
                             />
                           ))}
                           
-                          {/* Central AI core */}
-                          <div className="w-20 h-20 bg-gradient-to-r from-cyan-400 to-purple-500 rounded-full flex items-center justify-center animate-pulse">
-                            <Bot className="h-10 w-10 text-white" />
-                          </div>
+                          {/* Floating Data Streams */}
+                          {[...Array(12)].map((_, i) => (
+                            <div
+                              key={`stream-${i}`}
+                              className="absolute w-1 h-12 bg-gradient-to-b from-green-400 to-transparent rounded-full"
+                              style={{
+                                left: `${10 + i * 7}%`,
+                                top: `${20 + (i % 3) * 25}%`,
+                                animation: `float ${2 + Math.random() * 2}s ease-in-out infinite`,
+                                animationDelay: `${i * 0.1}s`
+                              }}
+                            />
+                          ))}
+                          
+                          {/* Pulsing Connection Lines */}
+                          <svg className="absolute inset-0 w-full h-full opacity-60">
+                            {[...Array(6)].map((_, i) => (
+                              <line
+                                key={`line-${i}`}
+                                x1="50%"
+                                y1="50%"
+                                x2={`${50 + Math.cos((i * 60 * Math.PI) / 180) * 30}%`}
+                                y2={`${50 + Math.sin((i * 60 * Math.PI) / 180) * 30}%`}
+                                stroke="rgba(99, 102, 241, 0.6)"
+                                strokeWidth="2"
+                                strokeDasharray="5,5"
+                                className="animate-pulse"
+                                style={{ animationDelay: `${i * 0.3}s` }}
+                              />
+                            ))}
+                          </svg>
                         </div>
                       </div>
                       
-                      {/* Moving data streams */}
-                      <div className="absolute inset-0">
-                        {[...Array(15)].map((_, i) => (
-                          <div
-                            key={`data-${i}`}
-                            className="absolute w-1 h-8 bg-gradient-to-b from-green-400 to-transparent rounded-full"
-                            style={{
-                              left: `${5 + i * 6}%`,
-                              top: `${20 + (i % 4) * 20}%`,
-                              animation: `float ${2 + Math.random() * 2}s ease-in-out infinite`,
-                              animationDelay: `${i * 0.1}s`
-                            }}
-                          />
-                        ))}
-                      </div>
-                      
-                      {/* Voice waveform */}
+                      {/* Voice Waveform Animation */}
                       <div className="absolute bottom-20 left-8 right-8 flex items-end justify-center space-x-1">
                         {[...Array(25)].map((_, i) => (
                           <div
@@ -528,7 +512,6 @@ const Index = () => {
                             <path d="M8 5v14l11-7z"/>
                           </svg>
                         </div>
-                        {/* Multiple ripple effects */}
                         <div className="absolute inset-0 w-24 h-24 border-4 border-white/50 rounded-full animate-ping"></div>
                         <div className="absolute inset-0 w-24 h-24 border-2 border-cyan-400/50 rounded-full animate-ping" style={{ animationDelay: '0.5s' }}></div>
                       </div>
@@ -573,9 +556,9 @@ const Index = () => {
           </div>
 
           <div className="bg-gradient-to-br from-yellow-50 to-yellow-100 rounded-3xl shadow-2xl p-8 lg:p-12 relative border-4 border-yellow-200">
-            <div className="relative max-w-5xl mx-auto">
+            <div className="relative max-w-4xl mx-auto">
               {/* Architecture Layout */}
-              <div className="flex flex-col items-center space-y-12">
+              <div className="flex flex-col items-center space-y-8">
                 
                 {/* Top Row - PSTN */}
                 <div className="relative">
@@ -588,21 +571,20 @@ const Index = () => {
 
                 {/* Connection Line */}
                 <div className="flex flex-col items-center">
-                  <div className="w-0.5 h-8 bg-gray-400"></div>
+                  <div className="w-0.5 h-6 bg-gray-400"></div>
                   <span className="text-xs bg-gray-200 px-3 py-1 rounded-full font-semibold border">SIP</span>
-                  <div className="w-0.5 h-8 bg-gray-400"></div>
+                  <div className="w-0.5 h-6 bg-gray-400"></div>
                 </div>
 
                 {/* Second Row - SBC, VoiceUp Service, AI Service */}
-                <div className="flex items-center justify-center space-x-16 w-full">
+                <div className="flex items-center justify-center space-x-12 w-full">
                   <div className="flex flex-col items-center">
                     <div className="group relative">
                       <div className="bg-gradient-to-r from-blue-600 to-blue-700 text-white px-8 py-4 rounded-2xl shadow-lg cursor-pointer hover:shadow-2xl transition-all duration-300 hover:scale-105 border-2 border-blue-500">
                         <span className="font-bold text-lg">SBC</span>
                       </div>
                     </div>
-                    {/* Connection to VoiceUp */}
-                    <div className="mt-4">
+                    <div className="mt-3">
                       <span className="text-xs bg-gray-200 px-3 py-1 rounded-full font-semibold border">SIPREC/SIP</span>
                     </div>
                   </div>
@@ -627,8 +609,7 @@ const Index = () => {
                         </div>
                       </div>
                     </div>
-                    {/* Connection from VoiceUp */}
-                    <div className="mt-4">
+                    <div className="mt-3">
                       <span className="text-xs bg-gray-200 px-3 py-1 rounded-full font-semibold border">API</span>
                     </div>
                   </div>
@@ -636,16 +617,16 @@ const Index = () => {
 
                 {/* Connection from SBC to PBX */}
                 <div className="flex justify-start w-full">
-                  <div className="flex flex-col items-center ml-12">
-                    <div className="w-0.5 h-8 bg-gray-400"></div>
+                  <div className="flex flex-col items-center ml-8">
+                    <div className="w-0.5 h-6 bg-gray-400"></div>
                     <span className="text-xs bg-gray-200 px-3 py-1 rounded-full font-semibold border">SIP</span>
-                    <div className="w-0.5 h-8 bg-gray-400"></div>
+                    <div className="w-0.5 h-6 bg-gray-400"></div>
                   </div>
                 </div>
 
                 {/* PBX Row */}
                 <div className="flex justify-start w-full">
-                  <div className="group relative ml-12">
+                  <div className="group relative ml-8">
                     <div className="bg-gradient-to-r from-blue-600 to-blue-700 text-white px-12 py-6 rounded-2xl shadow-lg cursor-pointer hover:shadow-2xl transition-all duration-300 hover:scale-105 border-2 border-blue-500">
                       <div className="flex items-center space-x-3">
                         <PhoneCall className="h-6 w-6" />
@@ -658,14 +639,14 @@ const Index = () => {
                 {/* Vertical connection from VoiceUp Service to Agent Desktops */}
                 <div className="flex justify-center">
                   <div className="flex flex-col items-center">
-                    <div className="w-0.5 h-12 bg-gray-400"></div>
-                    <div className="w-4 h-4 bg-voiceup-skyblue rounded-full animate-pulse"></div>
                     <div className="w-0.5 h-8 bg-gray-400"></div>
+                    <div className="w-4 h-4 bg-voiceup-skyblue rounded-full animate-pulse"></div>
+                    <div className="w-0.5 h-6 bg-gray-400"></div>
                   </div>
                 </div>
 
                 {/* Agent Desktop Level */}
-                <div className="flex items-center justify-center space-x-8 relative">
+                <div className="flex items-center justify-center space-x-6 relative">
                   {[1, 2, 3].map((i) => (
                     <div key={i} className="group relative">
                       <div className="bg-gradient-to-br from-voiceup-skyblue to-voiceup-periwinkle text-white px-6 py-6 rounded-2xl shadow-lg cursor-pointer hover:shadow-2xl hover:scale-105 transition-all duration-300 border-2 border-voiceup-navy">
@@ -680,7 +661,7 @@ const Index = () => {
                 </div>
 
                 {/* Customer Premise Label */}
-                <div className="mt-8 text-center">
+                <div className="mt-6 text-center">
                   <div className="inline-block px-8 py-3 bg-gradient-to-r from-yellow-400 to-yellow-500 rounded-full shadow-lg border-2 border-yellow-300">
                     <span className="text-yellow-900 font-bold text-lg">Customer Premise</span>
                   </div>
@@ -709,6 +690,11 @@ const Index = () => {
           0% { transform: scale(0) rotate(-180deg); opacity: 0; }
           50% { transform: scale(0.5) rotate(-90deg); opacity: 0.5; }
           100% { transform: scale(1) rotate(0deg); opacity: 1; }
+        }
+        
+        @keyframes orbit {
+          0% { transform: rotate(0deg) translateX(120px) rotate(0deg); }
+          100% { transform: rotate(360deg) translateX(120px) rotate(-360deg); }
         }
         
         .animate-bounce-down {
