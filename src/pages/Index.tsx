@@ -1,7 +1,7 @@
 
 import React, { useState, useEffect, useRef } from 'react';
 import { Link } from 'react-router-dom';
-import { ArrowDown, Mic, BarChart3, Users, Bot, PhoneCall, Search, Zap, Shield, MessageSquare } from 'lucide-react';
+import { ArrowDown, Mic, BarChart3, Users, Bot, PhoneCall, Search, Zap, Shield, MessageSquare, BrainCircuit, Headphones } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import Navbar from '@/components/Navbar';
 import Footer from '@/components/Footer';
@@ -13,6 +13,8 @@ const Index = () => {
   const [videoScale, setVideoScale] = useState(0.6);
   const [platformCapabilitiesInView, setPlatformCapabilitiesInView] = useState(false);
   const [expandedCards, setExpandedCards] = useState(false);
+  const [scrollProgress, setScrollProgress] = useState(0);
+  const [hoveredCardId, setHoveredCardId] = useState<number | null>(null);
   const dynamicSectionRef = useRef<HTMLDivElement>(null);
   const videoSectionRef = useRef<HTMLDivElement>(null);
   const platformCapabilitiesRef = useRef<HTMLDivElement>(null);
@@ -20,51 +22,63 @@ const Index = () => {
   const capabilities = [
     {
       id: 1,
-      title: "Speech Recognition",
-      icon: <Mic className="h-8 w-8" />,
-      content: "Advanced AI-powered speech recognition that accurately transcribes conversations in real-time across multiple languages and accents.",
-      image: "https://images.unsplash.com/photo-1589254065878-42c9da997008?w=600&h=400&fit=crop",
-      color: "from-voiceup-skyblue to-voiceup-periwinkle",
+      title: "VoiceUp Bridge",
+      icon: <BrainCircuit className="h-8 w-8" />,
+      content: "A platform for seamless, flexible and user-friendly communication integration with AI platforms with robust and advanced services.",
+      image: "https://images.unsplash.com/photo-1677442136019-21780ecad995?w=600&h=400&fit=crop",
+      color: "from-purple-500 to-blue-600",
+      iconColor: "text-purple-400",
+      bgGradient: "from-purple-50 to-blue-50"
     },
     {
       id: 2,
-      title: "Call Recording", 
-      icon: <PhoneCall className="h-8 w-8" />,
-      content: "Secure, compliant call recording with intelligent indexing and searchable transcripts for quality assurance and training.",
-      image: "https://images.unsplash.com/photo-1516321318423-f06f85e504b3?w=600&h=400&fit=crop",
-      color: "from-voiceup-periwinkle to-voiceup-navy",
+      title: "Speech Recognition", 
+      icon: <Mic className="h-8 w-8" />,
+      content: "Unlock the power of voice. Our advanced speech recognition technology transforms spoken words into accurate text, effortlessly. Streamline workflows, enhance accessibility, and connect with your audience like never before.",
+      image: "https://images.unsplash.com/photo-1589254065878-42c9da997008?w=600&h=400&fit=crop",
+      color: "from-cyan-500 to-blue-600",
+      iconColor: "text-cyan-400",
+      bgGradient: "from-cyan-50 to-blue-50"
     },
     {
       id: 3,
-      title: "Real-time Analytics",
-      icon: <BarChart3 className="h-8 w-8" />,
-      content: "Comprehensive dashboard with real-time insights, performance metrics, and actionable intelligence for data-driven decisions.",
-      image: "https://images.unsplash.com/photo-1551288049-bebda4e38f71?w=600&h=400&fit=crop",
-      color: "from-voiceup-navy to-voiceup-skyblue",
+      title: "Call Recording & Transcription",
+      icon: <PhoneCall className="h-8 w-8" />,
+      content: "Capture Every Conversation. Our seamless call recording and accurate transcription services ensure you never miss a detail. Effortlessly record, transcribe, and access your important calls.",
+      image: "https://images.unsplash.com/photo-1516321318423-f06f85e504b3?w=600&h=400&fit=crop",
+      color: "from-green-500 to-emerald-600",
+      iconColor: "text-green-400",
+      bgGradient: "from-green-50 to-emerald-50"
     },
     {
       id: 4,
-      title: "Agent Assistance",
-      icon: <Users className="h-8 w-8" />,
-      content: "AI-powered real-time agent coaching with sentiment analysis, script suggestions, and performance optimization tools.",
-      image: "https://images.unsplash.com/photo-1558494949-ef010cbdcc31?w=600&h=400&fit=crop",
-      color: "from-voiceup-skyblue to-voiceup-lavender",
+      title: "Analytics & Insights",
+      icon: <BarChart3 className="h-8 w-8" />,
+      content: "True Call Intelligence. Our solution goes beyond simple transcription, providing deep analytics on every call. Identify patterns, track compliance, and gain unparalleled insights to enhance your sales, support, and operations.",
+      image: "https://images.unsplash.com/photo-1551288049-bebda4e38f71?w=600&h=400&fit=crop",
+      color: "from-orange-500 to-red-600",
+      iconColor: "text-orange-400",
+      bgGradient: "from-orange-50 to-red-50"
     },
     {
       id: 5,
-      title: "Compliance Monitoring",
-      icon: <Shield className="h-8 w-8" />,
-      content: "Automated compliance monitoring ensuring adherence to regulatory requirements with alerts and detailed reporting.",
-      image: "https://images.unsplash.com/photo-1551434678-e076c223a692?w=600&h=400&fit=crop",
-      color: "from-voiceup-lavender to-voiceup-periwinkle",
+      title: "Agent Desktop Plugin",
+      icon: <Headphones className="h-8 w-8" />,
+      content: "Transcribe & Translate Live. Integrate our powerful desktop plugin to give your agents immediate access to call transcripts and translated text. Improve accuracy, accelerate training, and elevate customer satisfaction.",
+      image: "https://images.unsplash.com/photo-1558494949-ef010cbdcc31?w=600&h=400&fit=crop",
+      color: "from-indigo-500 to-purple-600",
+      iconColor: "text-indigo-400",
+      bgGradient: "from-indigo-50 to-purple-50"
     },
     {
       id: 6,
-      title: "Omnichannel Support",
-      icon: <MessageSquare className="h-8 w-8" />,
-      content: "Unified communication platform supporting voice, chat, email, and SMS with seamless agent workflow integration.",
+      title: "VoiceBot, ChatBot",
+      icon: <Bot className="h-8 w-8" />,
+      content: "Voice & Chat. Smart Automation. Deploy our AI-driven voicebots and chatbots to handle inquiries, resolve issues, and enhance customer service around the clock. Effortless, intelligent interactions. Scale your support with AI.",
       image: "https://images.unsplash.com/photo-1516321497487-e288fb19713f?w=600&h=400&fit=crop",
-      color: "from-voiceup-periwinkle to-voiceup-navy",
+      color: "from-pink-500 to-rose-600",
+      iconColor: "text-pink-400",
+      bgGradient: "from-pink-50 to-rose-50"
     }
   ];
 
@@ -89,12 +103,12 @@ const Index = () => {
       ([entry]) => {
         setPlatformCapabilitiesInView(entry.isIntersecting);
         if (entry.isIntersecting) {
-          setTimeout(() => setExpandedCards(true), 500);
+          setTimeout(() => setExpandedCards(true), 800);
         } else {
           setExpandedCards(false);
         }
       },
-      { threshold: 0.3 }
+      { threshold: 0.2 }
     );
 
     if (dynamicSectionRef.current) {
@@ -116,7 +130,7 @@ const Index = () => {
     };
   }, []);
 
-  // Video scaling effect based on scroll position
+  // Enhanced video scaling effect based on scroll position
   useEffect(() => {
     const handleScroll = () => {
       if (!videoSectionRef.current) return;
@@ -125,30 +139,46 @@ const Index = () => {
       const rect = section.getBoundingClientRect();
       const windowHeight = window.innerHeight;
       
-      // Calculate progress through the section (0 to 1)
       const sectionHeight = rect.height;
       const sectionTop = rect.top;
       const sectionBottom = rect.bottom;
       
       if (sectionTop <= windowHeight && sectionBottom >= 0) {
-        // Calculate distance from center of viewport
         const sectionCenter = sectionTop + sectionHeight / 2;
         const viewportCenter = windowHeight / 2;
         const distanceFromCenter = Math.abs(sectionCenter - viewportCenter);
         const maxDistance = windowHeight / 2 + sectionHeight / 2;
         
-        // Scale based on distance from center (closer = larger)
         const progress = Math.max(0, 1 - distanceFromCenter / maxDistance);
-        const scale = 0.6 + (progress * 0.4); // Scale from 0.6 to 1.0
+        const scale = 0.5 + (progress * 0.5); // Scale from 0.5 to 1.0
         
-        setVideoScale(Math.min(1, Math.max(0.6, scale)));
+        setVideoScale(Math.min(1, Math.max(0.5, scale)));
       }
     };
 
-    window.addEventListener('scroll', handleScroll);
-    handleScroll(); // Initial call
+    // Advanced scroll progress for platform capabilities
+    const handlePlatformScroll = () => {
+      if (!platformCapabilitiesRef.current) return;
+      
+      const section = platformCapabilitiesRef.current;
+      const rect = section.getBoundingClientRect();
+      const windowHeight = window.innerHeight;
+      
+      if (rect.top <= windowHeight && rect.bottom >= 0) {
+        const progress = Math.max(0, Math.min(1, (windowHeight - rect.top) / (windowHeight + rect.height)));
+        setScrollProgress(progress);
+      }
+    };
+
+    const combinedScrollHandler = () => {
+      handleScroll();
+      handlePlatformScroll();
+    };
+
+    window.addEventListener('scroll', combinedScrollHandler);
+    combinedScrollHandler();
     
-    return () => window.removeEventListener('scroll', handleScroll);
+    return () => window.removeEventListener('scroll', combinedScrollHandler);
   }, []);
 
   return (
@@ -270,26 +300,33 @@ const Index = () => {
         </div>
       </section>
 
-      {/* New Platform Capabilities Section - Redesigned */}
-      <section ref={platformCapabilitiesRef} className="py-20 bg-gradient-to-br from-slate-900 via-blue-900 to-indigo-900 relative overflow-hidden min-h-screen">
-        {/* Moving Background */}
+      {/* Advanced Platform Capabilities Section */}
+      <section ref={platformCapabilitiesRef} className="py-32 bg-gradient-to-br from-slate-900 via-blue-900 to-indigo-900 relative overflow-hidden min-h-screen">
+        {/* Advanced Moving Background */}
         <div className="absolute inset-0 pointer-events-none">
+          {/* Animated grid pattern */}
           <div 
-            className="absolute inset-0 opacity-30"
+            className="absolute inset-0 opacity-20"
             style={{
-              backgroundImage: `url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' fill-rule='evenodd'%3E%3Cg fill='%234F46E5' fill-opacity='0.1'%3E%3Ccircle cx='30' cy='30' r='4'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E")`,
-              animation: 'float 20s ease-in-out infinite'
+              backgroundImage: `url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' fill-rule='evenodd'%3E%3Cg fill='%236366F1' fill-opacity='0.1'%3E%3Ccircle cx='30' cy='30' r='4'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E")`,
+              transform: `translateY(${scrollProgress * -50}px)`,
+              transition: 'transform 0.1s ease-out'
             }}
           />
           
-          {/* Floating particles */}
-          {[...Array(30)].map((_, i) => (
+          {/* Dynamic floating particles */}
+          {[...Array(40)].map((_, i) => (
             <div
               key={i}
-              className="absolute w-2 h-2 bg-blue-400/40 rounded-full"
+              className="absolute rounded-full bg-gradient-to-r from-cyan-400/30 to-blue-500/30"
               style={{
+                width: `${2 + Math.random() * 4}px`,
+                height: `${2 + Math.random() * 4}px`,
                 left: `${Math.random() * 100}%`,
                 top: `${Math.random() * 100}%`,
+                transform: `translateY(${scrollProgress * (Math.random() * 100 - 50)}px) scale(${0.5 + scrollProgress * 0.5})`,
+                opacity: scrollProgress * 0.8,
+                transition: 'all 0.3s ease-out',
                 animation: `float ${3 + Math.random() * 4}s ease-in-out infinite`,
                 animationDelay: `${Math.random() * 2}s`
               }}
@@ -298,31 +335,60 @@ const Index = () => {
         </div>
 
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10 h-full flex flex-col justify-center">
-          <div className="text-center mb-16">
-            <h2 className="text-4xl lg:text-5xl font-bold text-white mb-4">
+          <div 
+            className="text-center mb-20"
+            style={{
+              transform: `translateY(${(1 - scrollProgress) * 50}px)`,
+              opacity: scrollProgress,
+              transition: 'all 0.6s ease-out'
+            }}
+          >
+            <h2 className="text-4xl lg:text-6xl font-bold text-white mb-6 bg-gradient-to-r from-white via-cyan-200 to-blue-200 bg-clip-text text-transparent">
               Platform Capabilities
             </h2>
-            <p className="text-xl text-white/80 max-w-3xl mx-auto">
+            <p className="text-xl text-white/90 max-w-3xl mx-auto">
               Experience our dynamic AI-powered platform capabilities
             </p>
           </div>
 
-          <div className="relative flex items-center justify-center min-h-[600px]">
+          <div className="relative flex items-center justify-center min-h-[700px]">
             {/* Small Icons (Initial state) */}
             {!expandedCards && (
-              <div className="grid grid-cols-3 gap-8">
+              <div 
+                className="grid grid-cols-3 gap-12 lg:gap-16"
+                style={{
+                  transform: `scale(${0.8 + scrollProgress * 0.2})`,
+                  opacity: platformCapabilitiesInView ? 1 : 0,
+                  transition: 'all 1s ease-out'
+                }}
+              >
                 {capabilities.map((capability, index) => (
                   <div
                     key={capability.id}
-                    className="flex flex-col items-center space-y-2 animate-fade-in"
-                    style={{ animationDelay: `${index * 0.1}s` }}
+                    className="flex flex-col items-center space-y-4 group cursor-pointer"
+                    style={{ 
+                      animationDelay: `${index * 0.15}s`,
+                      transform: `translateY(${Math.sin(Date.now() * 0.001 + index) * 5}px)`,
+                    }}
+                    onMouseEnter={() => setHoveredCardId(capability.id)}
+                    onMouseLeave={() => setHoveredCardId(null)}
                   >
-                    <div className="w-16 h-16 bg-white/10 backdrop-blur-sm rounded-full flex items-center justify-center border border-cyan-400/30 hover:bg-white/20 transition-colors">
-                      <div className="text-cyan-300">
+                    <div 
+                      className={`w-20 h-20 rounded-full flex items-center justify-center border-2 transition-all duration-500 ${
+                        hoveredCardId === capability.id 
+                          ? `bg-gradient-to-r ${capability.color} border-transparent shadow-2xl scale-110` 
+                          : 'bg-white/10 backdrop-blur-sm border-cyan-400/30 hover:bg-white/20 group-hover:scale-105'
+                      }`}
+                    >
+                      <div className={`transition-all duration-300 ${
+                        hoveredCardId === capability.id ? 'text-white scale-110' : capability.iconColor
+                      }`}>
                         {capability.icon}
                       </div>
                     </div>
-                    <span className="text-white text-sm font-medium text-center">
+                    <span className={`text-white text-sm font-medium text-center transition-all duration-300 ${
+                      hoveredCardId === capability.id ? 'text-cyan-200 scale-105' : ''
+                    }`}>
                       {capability.title}
                     </span>
                   </div>
@@ -330,32 +396,82 @@ const Index = () => {
               </div>
             )}
 
-            {/* Expanded Cards */}
+            {/* Advanced Expanded Cards */}
             {expandedCards && (
-              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 max-w-6xl">
+              <div 
+                className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 max-w-7xl w-full"
+                style={{
+                  opacity: expandedCards ? 1 : 0,
+                  transform: `scale(${expandedCards ? 1 : 0.8})`,
+                  transition: 'all 1.2s cubic-bezier(0.175, 0.885, 0.32, 1.275)'
+                }}
+              >
                 {capabilities.map((capability, index) => (
                   <div
                     key={capability.id}
-                    className="bg-white/95 backdrop-blur-sm rounded-2xl shadow-2xl p-6 border border-white/20 animate-scale-in hover:scale-105 transition-transform"
-                    style={{ animationDelay: `${index * 0.1}s` }}
+                    className="group relative"
+                    style={{ 
+                      animationDelay: `${index * 0.1}s`,
+                    }}
+                    onMouseEnter={() => setHoveredCardId(capability.id)}
+                    onMouseLeave={() => setHoveredCardId(null)}
                   >
-                    <div className="flex items-center space-x-4 mb-4">
-                      <div className="p-3 bg-voiceup-skyblue rounded-lg text-white">
-                        {capability.icon}
+                    {/* Card with advanced hover effects */}
+                    <div className={`relative bg-white/95 backdrop-blur-lg rounded-3xl shadow-2xl p-8 border border-white/20 transition-all duration-700 transform ${
+                      hoveredCardId === capability.id 
+                        ? 'scale-105 shadow-3xl -translate-y-2' 
+                        : 'hover:scale-102 hover:-translate-y-1'
+                    }`}>
+                      
+                      {/* Animated background gradient on hover */}
+                      <div className={`absolute inset-0 rounded-3xl bg-gradient-to-br ${capability.bgGradient} opacity-0 transition-opacity duration-500 ${
+                        hoveredCardId === capability.id ? 'opacity-100' : ''
+                      }`} />
+                      
+                      {/* Content */}
+                      <div className="relative z-10">
+                        <div className="flex items-center space-x-4 mb-6">
+                          <div className={`p-4 rounded-2xl transition-all duration-500 ${
+                            hoveredCardId === capability.id 
+                              ? `bg-gradient-to-r ${capability.color} text-white shadow-lg scale-110` 
+                              : 'bg-gray-100 text-gray-600'
+                          }`}>
+                            {capability.icon}
+                          </div>
+                          <h3 className={`text-xl font-bold transition-colors duration-300 ${
+                            hoveredCardId === capability.id ? 'text-gray-800' : 'text-voiceup-navy'
+                          }`}>
+                            {capability.title}
+                          </h3>
+                        </div>
+                        
+                        <p className={`text-gray-700 text-sm leading-relaxed mb-6 transition-colors duration-300 ${
+                          hoveredCardId === capability.id ? 'text-gray-600' : ''
+                        }`}>
+                          {capability.content}
+                        </p>
+                        
+                        <Button 
+                          size="sm"
+                          className={`transition-all duration-500 rounded-full ${
+                            hoveredCardId === capability.id 
+                              ? `bg-gradient-to-r ${capability.color} text-white shadow-lg hover:shadow-xl scale-105` 
+                              : 'bg-voiceup-skyblue hover:bg-voiceup-periwinkle text-white'
+                          }`}
+                        >
+                          Learn More →
+                        </Button>
                       </div>
-                      <h3 className="text-lg font-bold text-voiceup-navy">
-                        {capability.title}
-                      </h3>
+                      
+                      {/* Subtle animated border */}
+                      <div className={`absolute inset-0 rounded-3xl bg-gradient-to-r ${capability.color} opacity-0 transition-opacity duration-500 ${
+                        hoveredCardId === capability.id ? 'opacity-20' : ''
+                      }`} style={{ 
+                        mask: 'linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0)',
+                        maskComposite: 'subtract',
+                        padding: '2px'
+                      }} />
                     </div>
-                    <p className="text-gray-700 text-sm leading-relaxed mb-4">
-                      {capability.content}
-                    </p>
-                    <Button 
-                      size="sm"
-                      className="bg-voiceup-skyblue hover:bg-voiceup-periwinkle text-white rounded-full"
-                    >
-                      Learn More →
-                    </Button>
                   </div>
                 ))}
               </div>
