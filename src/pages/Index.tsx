@@ -196,7 +196,7 @@ const Index = () => {
             className="w-full h-full object-cover"
             poster="https://images.unsplash.com/photo-1518770660439-4636190af475?w=1920&h=1080&fit=crop"
           >
-            <source src="https://player.vimeo.com/external/434045526.sd.mp4?s=c27eecc69fab9f11d2a28e83cb8d6f6a1c6be17b&profile_id=164&oauth2_token_id=57447761" type="video/mp4" />
+            <source src="/lovable-uploads/4k%20Video%20_%20Technology%20Looped%20Background%20_%20No%20Copyright%20Loop%20Background%20Video%20(1).mp4" type="video/mp4" />
           </video>
           <div className="absolute inset-0 bg-gradient-to-r from-voiceup-navy/80 via-voiceup-navy/60 to-transparent"></div>
         </div>
