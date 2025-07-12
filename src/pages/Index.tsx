@@ -13,11 +13,12 @@ const Index = () => {
   const [platformCapabilitiesInView, setPlatformCapabilitiesInView] = useState(false);
   const [expandedCards, setExpandedCards] = useState(false);
   const [scrollProgress, setScrollProgress] = useState(0);
-  const [hoveredCardId, setHoveredCardId] = useState<number | null>(null);
-  const [selectedIconId, setSelectedIconId] = useState<number | null>(null);
+  const [hoveredMenuId, setHoveredMenuId] = useState<number | null>(null);
+  const [circularMenuInView, setCircularMenuInView] = useState(false);
   const dynamicSectionRef = useRef<HTMLDivElement>(null);
   const videoSectionRef = useRef<HTMLDivElement>(null);
   const platformCapabilitiesRef = useRef<HTMLDivElement>(null);
+  const circularMenuRef = useRef<HTMLDivElement>(null);
 
   const capabilities = [
     {
@@ -106,10 +107,16 @@ const Index = () => {
           setTimeout(() => setExpandedCards(true), 500);
         } else {
           setExpandedCards(false);
-          setSelectedIconId(null);
         }
       },
       { threshold: 0.2 }
+    );
+
+    const circularMenuObserver = new IntersectionObserver(
+      ([entry]) => {
+        setCircularMenuInView(entry.isIntersecting);
+      },
+      { threshold: 0.3 }
     );
 
     if (dynamicSectionRef.current) {
@@ -124,10 +131,15 @@ const Index = () => {
       platformCapabilitiesObserver.observe(platformCapabilitiesRef.current);
     }
 
+    if (circularMenuRef.current) {
+      circularMenuObserver.observe(circularMenuRef.current);
+    }
+
     return () => {
       observer.disconnect();
       videoObserver.disconnect();
       platformCapabilitiesObserver.disconnect();
+      circularMenuObserver.disconnect();
     };
   }, []);
 
@@ -181,6 +193,16 @@ const Index = () => {
     
     return () => window.removeEventListener('scroll', combinedScrollHandler);
   }, []);
+
+  // Get circular position for menu items
+  const getCircularPosition = (index: number, total: number, radius: number) => {
+    const angle = (index * 360) / total - 90; // Start from top
+    const radian = (angle * Math.PI) / 180;
+    return {
+      x: Math.cos(radian) * radius,
+      y: Math.sin(radian) * radius,
+    };
+  };
 
   return (
     <div className="min-h-screen">
@@ -301,38 +323,72 @@ const Index = () => {
         </div>
       </section>
 
-      {/* Advanced Platform Capabilities Section */}
-      <section ref={platformCapabilitiesRef} className="py-32 bg-gradient-to-br from-slate-900 via-blue-900 to-indigo-900 relative overflow-hidden min-h-screen">
-        {/* Advanced Moving Background */}
-        <div className="absolute inset-0 pointer-events-none">
-          {/* Animated grid pattern */}
-          <div 
-            className="absolute inset-0 opacity-20"
-            style={{
-              backgroundImage: `url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' fill-rule='evenodd'%3E%3Cg fill='%236366F1' fill-opacity='0.1'%3E%3Ccircle cx='30' cy='30' r='4'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E")`,
-              transform: `translateY(${scrollProgress * -50}px)`,
-              transition: 'transform 0.1s ease-out'
-            }}
-          />
-          
-          {/* Dynamic floating particles */}
-          {[...Array(40)].map((_, i) => (
-            <div
-              key={i}
-              className="absolute rounded-full bg-gradient-to-r from-cyan-400/30 to-blue-500/30"
+      {/* Interactive Platform Experience with Circular Menu */}
+      <section ref={circularMenuRef} className="py-32 bg-gradient-to-br from-slate-900 via-blue-900 to-indigo-900 relative overflow-hidden min-h-screen">
+        {/* Moving Animation Background */}
+        <div className="absolute inset-0 pointer-events-none overflow-hidden">
+          {/* Neural Network Background */}
+          <div className="absolute inset-0">
+            <img 
+              src="https://images.unsplash.com/photo-1518709268805-4e9042af2176?w=1920&h=1080&fit=crop" 
+              alt="Neural Network Background"
+              className="w-full h-full object-cover opacity-20"
               style={{
-                width: `${2 + Math.random() * 4}px`,
-                height: `${2 + Math.random() * 4}px`,
+                transform: `translateY(${scrollProgress * -30}px) scale(1.1)`,
+                transition: 'transform 0.1s ease-out'
+              }}
+            />
+            <div className="absolute inset-0 bg-gradient-to-br from-slate-900/80 via-blue-900/70 to-indigo-900/80"></div>
+          </div>
+
+          {/* Floating Tech Elements */}
+          {[...Array(30)].map((_, i) => (
+            <div
+              key={`tech-${i}`}
+              className="absolute"
+              style={{
                 left: `${Math.random() * 100}%`,
                 top: `${Math.random() * 100}%`,
-                transform: `translateY(${scrollProgress * (Math.random() * 100 - 50)}px) scale(${0.5 + scrollProgress * 0.5})`,
-                opacity: scrollProgress * 0.8,
+                transform: `translateY(${scrollProgress * (Math.random() * 100 - 50)}px) rotate(${scrollProgress * 360}deg)`,
+                opacity: scrollProgress * 0.6,
                 transition: 'all 0.3s ease-out',
                 animation: `float ${3 + Math.random() * 4}s ease-in-out infinite`,
                 animationDelay: `${Math.random() * 2}s`
               }}
-            />
+            >
+              <div className={`w-2 h-2 bg-gradient-to-r ${capabilities[i % 6].color} rounded-full shadow-lg`} />
+            </div>
           ))}
+
+          {/* Moving Circuit Lines */}
+          <svg className="absolute inset-0 w-full h-full opacity-30">
+            {[...Array(12)].map((_, i) => (
+              <path
+                key={`circuit-${i}`}
+                d={`M ${Math.random() * 100}% ${Math.random() * 100}% Q ${Math.random() * 100}% ${Math.random() * 100}% ${Math.random() * 100}% ${Math.random() * 100}%`}
+                stroke={`url(#gradient-${i % 3})`}
+                strokeWidth="1"
+                fill="none"
+                strokeDasharray="5,5"
+                className="animate-pulse"
+                style={{ animationDelay: `${i * 0.2}s` }}
+              />
+            ))}
+            <defs>
+              <linearGradient id="gradient-0" x1="0%" y1="0%" x2="100%" y2="100%">
+                <stop offset="0%" stopColor="#60A5FA" stopOpacity="0.8" />
+                <stop offset="100%" stopColor="#A78BFA" stopOpacity="0.2" />
+              </linearGradient>
+              <linearGradient id="gradient-1" x1="0%" y1="0%" x2="100%" y2="100%">
+                <stop offset="0%" stopColor="#34D399" stopOpacity="0.8" />
+                <stop offset="100%" stopColor="#60A5FA" stopOpacity="0.2" />
+              </linearGradient>
+              <linearGradient id="gradient-2" x1="0%" y1="0%" x2="100%" y2="100%">
+                <stop offset="0%" stopColor="#F472B6" stopOpacity="0.8" />
+                <stop offset="100%" stopColor="#A78BFA" stopOpacity="0.2" />
+              </linearGradient>
+            </defs>
+          </svg>
         </div>
 
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10 h-full flex flex-col justify-center">
@@ -348,109 +404,117 @@ const Index = () => {
               Interactive Platform Experience
             </h2>
             <p className="text-xl text-white/90 max-w-3xl mx-auto">
-              Click on any capability below to explore our dynamic AI-powered platform
+              Hover over any capability to explore our dynamic AI-powered platform
             </p>
           </div>
 
-          <div className="relative flex items-center justify-center min-h-[600px]">
-            {/* Icon Grid Layout */}
-            <div className="grid grid-cols-3 grid-rows-2 gap-16 lg:gap-24 max-w-4xl w-full">
-              {capabilities.map((capability, index) => (
-                <div
-                  key={capability.id}
-                  className="relative flex flex-col items-center justify-center"
-                  style={{ 
-                    gridColumn: index < 3 ? index + 1 : index - 2,
-                    gridRow: index < 3 ? 1 : 2
-                  }}
-                >
-                  {/* Small Icon State */}
+          <div className="relative flex items-center justify-center min-h-[700px]">
+            {/* Circular Menu */}
+            <div className="relative w-96 h-96 md:w-[500px] md:h-[500px]">
+              {/* Center Hub */}
+              <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 z-20">
+                <div className="w-24 h-24 md:w-32 md:h-32 bg-gradient-to-br from-white to-gray-100 rounded-full flex items-center justify-center shadow-2xl border-4 border-white/20">
+                  <div className="text-voiceup-navy text-lg md:text-xl font-bold">
+                    VoiceUp
+                  </div>
+                </div>
+              </div>
+
+              {/* Menu Items */}
+              {capabilities.map((capability, index) => {
+                const position = getCircularPosition(index, capabilities.length, 180);
+                const isHovered = hoveredMenuId === capability.id;
+                
+                return (
                   <div
-                    className={`cursor-pointer transition-all duration-700 ease-out ${
-                      selectedIconId === capability.id ? 'scale-0 opacity-0' : 'scale-100 opacity-100'
-                    }`}
-                    onClick={() => setSelectedIconId(capability.id)}
+                    key={capability.id}
+                    className="absolute transition-all duration-500 ease-out"
                     style={{
-                      transform: `scale(${platformCapabilitiesInView ? 1 : 0}) ${selectedIconId === capability.id ? 'scale(0)' : ''}`,
-                      animationDelay: `${index * 0.15}s`,
-                      transition: 'all 0.7s cubic-bezier(0.175, 0.885, 0.32, 1.275)'
+                      left: `calc(50% + ${position.x}px)`,
+                      top: `calc(50% + ${position.y}px)`,
+                      transform: `translate(-50%, -50%) scale(${circularMenuInView ? 1 : 0}) ${isHovered ? 'scale(1.2)' : ''}`,
+                      animationDelay: `${index * 0.1}s`,
+                      zIndex: isHovered ? 30 : 10
                     }}
+                    onMouseEnter={() => setHoveredMenuId(capability.id)}
+                    onMouseLeave={() => setHoveredMenuId(null)}
                   >
-                    <div className={`w-20 h-20 rounded-full flex items-center justify-center border-2 transition-all duration-500 bg-gradient-to-r ${capability.color} border-transparent shadow-2xl hover:scale-110 group`}>
-                      <div className="text-white scale-110 group-hover:scale-125 transition-transform duration-300">
+                    {/* Menu Icon */}
+                    <div className={`w-16 h-16 md:w-20 md:h-20 rounded-full flex items-center justify-center cursor-pointer transition-all duration-300 bg-gradient-to-r ${capability.color} shadow-lg hover:shadow-xl border-2 border-white/20`}>
+                      <div className="text-white scale-110">
                         {capability.icon}
                       </div>
                     </div>
-                    <span className="text-white text-sm font-medium text-center mt-4 block transition-all duration-300 group-hover:text-cyan-200">
-                      {capability.title}
-                    </span>
-                  </div>
 
-                  {/* Expanded Card State */}
-                  <div
-                    className={`absolute inset-0 transition-all duration-700 ease-out ${
-                      selectedIconId === capability.id ? 'scale-100 opacity-100 z-20' : 'scale-0 opacity-0 pointer-events-none'
-                    }`}
-                    style={{
-                      width: '350px',
-                      height: '450px',
-                      left: '50%',
-                      top: '50%',
-                      transform: `translate(-50%, -50%) scale(${selectedIconId === capability.id ? 1 : 0})`,
-                      transition: 'all 0.7s cubic-bezier(0.175, 0.885, 0.32, 1.275)'
-                    }}
-                  >
-                    <div className="bg-white/95 backdrop-blur-lg rounded-3xl shadow-2xl p-6 border border-white/20 h-full relative overflow-hidden">
-                      {/* Close Button */}
-                      <button
-                        onClick={(e) => {
-                          e.stopPropagation();
-                          setSelectedIconId(null);
-                        }}
-                        className="absolute top-4 right-4 w-8 h-8 rounded-full bg-gray-200 hover:bg-gray-300 flex items-center justify-center transition-colors duration-200 z-10"
-                      >
-                        <span className="text-gray-600 text-lg font-bold">×</span>
-                      </button>
-
-                      {/* Animated background gradient */}
-                      <div className={`absolute inset-0 rounded-3xl bg-gradient-to-br ${capability.bgGradient} opacity-100`} />
+                    {/* Hover Description Card */}
+                    <div
+                      className={`absolute top-full mt-4 w-80 bg-white/95 backdrop-blur-lg rounded-2xl shadow-2xl p-6 border border-white/20 transition-all duration-500 ease-out ${
+                        isHovered ? 'opacity-100 translate-y-0 scale-100' : 'opacity-0 translate-y-4 scale-95 pointer-events-none'
+                      }`}
+                      style={{
+                        left: '50%',
+                        transform: `translateX(-50%) ${isHovered ? 'translateY(0)' : 'translateY(16px)'}`,
+                        zIndex: 40
+                      }}
+                    >
+                      {/* Arrow pointing to icon */}
+                      <div className="absolute -top-2 left-1/2 transform -translate-x-1/2 w-4 h-4 bg-white/95 rotate-45 border-l border-t border-white/20"></div>
                       
-                      {/* Content */}
-                      <div className="relative z-10 h-full flex flex-col">
-                        <div className="flex items-center space-x-4 mb-6">
-                          <div className={`p-4 rounded-2xl bg-gradient-to-r ${capability.color} text-white shadow-lg`}>
-                            {capability.icon}
-                          </div>
-                          <h3 className="text-xl font-bold text-gray-800">
-                            {capability.title}
-                          </h3>
+                      <div className="flex items-center space-x-3 mb-4">
+                        <div className={`p-3 rounded-xl bg-gradient-to-r ${capability.color} text-white shadow-md`}>
+                          {capability.icon}
                         </div>
-                        
-                        <p className="text-gray-700 text-sm leading-relaxed mb-6 flex-1">
-                          {capability.content}
-                        </p>
-                        
-                        <Button 
-                          size="sm"
-                          className={`transition-all duration-500 rounded-full bg-gradient-to-r ${capability.color} text-white shadow-lg hover:shadow-xl hover:scale-105 self-start`}
-                        >
-                          Learn More →
-                        </Button>
+                        <h3 className="text-lg font-bold text-gray-800">
+                          {capability.title}
+                        </h3>
                       </div>
+                      
+                      <p className="text-gray-700 text-sm leading-relaxed mb-4">
+                        {capability.content}
+                      </p>
+                      
+                      <Button 
+                        size="sm"
+                        className={`transition-all duration-300 rounded-full bg-gradient-to-r ${capability.color} text-white shadow-md hover:shadow-lg hover:scale-105`}
+                      >
+                        Learn More →
+                      </Button>
                     </div>
-                  </div>
-                </div>
-              ))}
-            </div>
 
-            {/* Background overlay when card is selected */}
-            <div
-              className={`fixed inset-0 bg-black/50 backdrop-blur-sm transition-opacity duration-500 ${
-                selectedIconId ? 'opacity-100' : 'opacity-0 pointer-events-none'
-              }`}
-              style={{ zIndex: 15 }}
-              onClick={() => setSelectedIconId(null)}
-            />
+                    {/* Connection Lines to Center */}
+                    <svg
+                      className={`absolute inset-0 pointer-events-none transition-opacity duration-500 ${
+                        isHovered ? 'opacity-60' : 'opacity-20'
+                      }`}
+                      style={{
+                        width: '400px',
+                        height: '400px',
+                        left: '50%',
+                        top: '50%',
+                        transform: 'translate(-50%, -50%)'
+                      }}
+                    >
+                      <line
+                        x1="200"
+                        y1="200"
+                        x2={200 + position.x}
+                        y2={200 + position.y}
+                        stroke={`url(#menu-gradient-${index})`}
+                        strokeWidth="2"
+                        strokeDasharray="4,4"
+                        className="animate-pulse"
+                      />
+                      <defs>
+                        <linearGradient id={`menu-gradient-${index}`} x1="0%" y1="0%" x2="100%" y2="100%">
+                          <stop offset="0%" stopColor="#ffffff" stopOpacity="0.8" />
+                          <stop offset="100%" stopColor="#60A5FA" stopOpacity="0.4" />
+                        </linearGradient>
+                      </defs>
+                    </svg>
+                  </div>
+                );
+              })}
+            </div>
           </div>
         </div>
       </section>
@@ -460,20 +524,29 @@ const Index = () => {
         {/* Enhanced Moving Background with better coverage */}
         <div className="absolute inset-0 pointer-events-none overflow-hidden">
           <div 
-            className="absolute -inset-20 opacity-20"
+            className="absolute -inset-40 opacity-20"
             style={{
               backgroundImage: `url("data:image/svg+xml,%3Csvg width='100' height='100' viewBox='0 0 100 100' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M11 18c3.866 0 7-3.134 7-7s-3.134-7-7-7-7 3.134-7 7 3.134 7 7 7zm48 25c3.866 0 7-3.134 7-7s-3.134-7-7-7-7 3.134-7 7 3.134 7 7 7zm-43-7c1.657 0 3-1.343 3-3s-1.343-3-3-3-3 1.343-3 3 1.343 3 3 3zm63 31c1.657 0 3-1.343 3-3s-1.343-3-3-3-3 1.343-3 3 1.343 3 3 3zM34 90c1.657 0 3-1.343 3-3s-1.343-3-3-3-3 1.343-3 3 1.343 3 3 3zm56-76c1.657 0 3-1.343 3-3s-1.343-3-3-3-3 1.343-3 3 1.343 3 3 3zM12 86c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm28-65c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm23-11c2.76 0 5-2.24 5-5s-2.24-5-5-5-5 2.24-5 5 2.24 5 5 5zm-6 60c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm29 22c2.76 0 5-2.24 5-5s-2.24-5-5-5-5 2.24-5 5 2.24 5 5 5zM32 63c2.76 0 5-2.24 5-5s-2.24-5-5-5-5 2.24-5 5 2.24 5 5 5zm57-13c2.76 0 5-2.24 5-5s-2.24-5-5-5-5 2.24-5 5 2.24 5 5 5zm-9-21c1.105 0 2-.895 2-2s-.895-2-2-2-2 .895-2 2 .895 2 2 2zM60 91c1.105 0 2-.895 2-2s-.895-2-2-2-2 .895-2 2 .895 2 2 2zM35 41c1.105 0 2-.895 2-2s-.895-2-2-2-2 .895-2 2 .895 2 2 2zM12 60c1.105 0 2-.895 2-2s-.895-2-2-2-2 .895-2 2 .895 2 2 2z' fill='%2360A5FA' fill-opacity='0.4' fill-rule='evenodd'/%3E%3C/svg%3E")`,
               animation: 'float 25s ease-in-out infinite reverse',
-              transform: 'rotate(45deg) scale(1.5)'
+              transform: 'rotate(45deg) scale(2)'
             }}
           />
-          {/* Additional rotating layer for better coverage */}
+          {/* Additional rotating layer for complete coverage */}
           <div 
-            className="absolute -inset-32 opacity-15"
+            className="absolute -inset-40 opacity-15"
             style={{
               backgroundImage: `url("data:image/svg+xml,%3Csvg width='80' height='80' viewBox='0 0 80 80' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='%2360A5FA' fill-opacity='0.3'%3E%3Ccircle cx='40' cy='40' r='2'/%3E%3Ccircle cx='20' cy='20' r='1'/%3E%3Ccircle cx='60' cy='20' r='1'/%3E%3Ccircle cx='20' cy='60' r='1'/%3E%3Ccircle cx='60' cy='60' r='1'/%3E%3C/g%3E%3C/svg%3E")`,
               animation: 'float 30s ease-in-out infinite',
-              transform: 'rotate(-30deg) scale(2)'
+              transform: 'rotate(-30deg) scale(2.5)'
+            }}
+          />
+          {/* Third layer for maximum coverage */}
+          <div 
+            className="absolute -inset-40 opacity-10"
+            style={{
+              backgroundImage: `url("data:image/svg+xml,%3Csvg width='120' height='120' viewBox='0 0 120 120' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='%2360A5FA' fill-opacity='0.2'%3E%3Ccircle cx='60' cy='60' r='3'/%3E%3Ccircle cx='30' cy='30' r='1.5'/%3E%3Ccircle cx='90' cy='30' r='1.5'/%3E%3Ccircle cx='30' cy='90' r='1.5'/%3E%3Ccircle cx='90' cy='90' r='1.5'/%3E%3C/g%3E%3C/svg%3E")`,
+              animation: 'float 35s ease-in-out infinite reverse',
+              transform: 'rotate(15deg) scale(1.8)'
             }}
           />
         </div>
