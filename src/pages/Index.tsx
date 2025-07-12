@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { Link } from 'react-router-dom';
-import { ArrowDown, Mic, BarChart3, Users, Bot, PhoneCall, Search, Zap, Shield, MessageSquare, BrainCircuit, Headphones } from 'lucide-react';
+import { ArrowDown, Mic, BarChart3, Bot, PhoneCall, BrainCircuit, Headphones } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import Navbar from '@/components/Navbar';
 import Footer from '@/components/Footer';
@@ -323,230 +323,177 @@ const Index = () => {
         </div>
       </section>
 
-      {/* Interactive Platform Experience with Circular Menu */}
+      {/* Interactive Platform Experience - Redesigned like reference image */}
       <section ref={circularMenuRef} className="py-32 bg-gradient-to-br from-slate-900 via-blue-900 to-indigo-900 relative overflow-hidden min-h-screen">
-        {/* Moving Animation Background */}
+        {/* Background with circuit pattern and animation */}
         <div className="absolute inset-0 pointer-events-none overflow-hidden">
-          {/* Neural Network Background */}
-          <div className="absolute inset-0">
-            <img 
-              src="https://images.unsplash.com/photo-1518709268805-4e9042af2176?w=1920&h=1080&fit=crop" 
-              alt="Neural Network Background"
-              className="w-full h-full object-cover opacity-20"
-              style={{
-                transform: `translateY(${scrollProgress * -30}px) scale(1.1)`,
-                transition: 'transform 0.1s ease-out'
-              }}
-            />
-            <div className="absolute inset-0 bg-gradient-to-br from-slate-900/80 via-blue-900/70 to-indigo-900/80"></div>
-          </div>
-
-          {/* Floating Tech Elements */}
-          {[...Array(30)].map((_, i) => (
+          {/* Circuit board pattern */}
+          <div 
+            className="absolute inset-0 opacity-20"
+            style={{
+              backgroundImage: `url("data:image/svg+xml,%3Csvg width='100' height='100' viewBox='0 0 100 100' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M11 18c3.866 0 7-3.134 7-7s-3.134-7-7-7-7 3.134-7 7 3.134 7 7 7zm48 25c3.866 0 7-3.134 7-7s-3.134-7-7-7-7 3.134-7 7 3.134 7 7 7zm-43-7c1.657 0 3-1.343 3-3s-1.343-3-3-3-3 1.343-3 3 1.343 3 3 3zm63 31c1.657 0 3-1.343 3-3s-1.343-3-3-3-3 1.343-3 3 1.343 3 3 3zM34 90c1.657 0 3-1.343 3-3s-1.343-3-3-3-3 1.343-3 3 1.343 3 3 3zm56-76c1.657 0 3-1.343 3-3s-1.343-3-3-3-3 1.343-3 3 1.343 3 3 3zM12 86c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm28-65c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm23-11c2.76 0 5-2.24 5-5s-2.24-5-5-5-5 2.24-5 5 2.24 5 5 5zm-6 60c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm29 22c2.76 0 5-2.24 5-5s-2.24-5-5-5-5 2.24-5 5 2.24 5 5 5zM32 63c2.76 0 5-2.24 5-5s-2.24-5-5-5-5 2.24-5 5 2.24 5 5 5zm57-13c2.76 0 5-2.24 5-5s-2.24-5-5-5-5 2.24-5 5 2.24 5 5 5zm-9-21c1.105 0 2-.895 2-2s-.895-2-2-2-2 .895-2 2 .895 2 2 2zM60 91c1.105 0 2-.895 2-2s-.895-2-2-2-2 .895-2 2 .895 2 2 2zM35 41c1.105 0 2-.895 2-2s-.895-2-2-2-2 .895-2 2 .895 2 2 2zM12 60c1.105 0 2-.895 2-2s-.895-2-2-2-2 .895-2 2 .895 2 2 2z' fill='%2360A5FA' fill-opacity='0.4' fill-rule='evenodd'/%3E%3C/svg%3E")`,
+              animation: 'float 20s ease-in-out infinite'
+            }}
+          />
+          
+          {/* Floating particles */}
+          {[...Array(20)].map((_, i) => (
             <div
-              key={`tech-${i}`}
-              className="absolute"
+              key={`particle-${i}`}
+              className="absolute w-1 h-1 bg-cyan-400 rounded-full animate-pulse"
               style={{
                 left: `${Math.random() * 100}%`,
                 top: `${Math.random() * 100}%`,
-                transform: `translateY(${scrollProgress * (Math.random() * 100 - 50)}px) rotate(${scrollProgress * 360}deg)`,
-                opacity: scrollProgress * 0.6,
-                transition: 'all 0.3s ease-out',
                 animation: `float ${3 + Math.random() * 4}s ease-in-out infinite`,
                 animationDelay: `${Math.random() * 2}s`
               }}
-            >
-              <div className={`w-2 h-2 bg-gradient-to-r ${capabilities[i % 6].color} rounded-full shadow-lg`} />
-            </div>
+            />
           ))}
-
-          {/* Moving Circuit Lines */}
-          <svg className="absolute inset-0 w-full h-full opacity-30">
-            {[...Array(12)].map((_, i) => (
-              <path
-                key={`circuit-${i}`}
-                d={`M ${Math.random() * 100}% ${Math.random() * 100}% Q ${Math.random() * 100}% ${Math.random() * 100}% ${Math.random() * 100}% ${Math.random() * 100}%`}
-                stroke={`url(#gradient-${i % 3})`}
-                strokeWidth="1"
-                fill="none"
-                strokeDasharray="5,5"
-                className="animate-pulse"
-                style={{ animationDelay: `${i * 0.2}s` }}
-              />
-            ))}
-            <defs>
-              <linearGradient id="gradient-0" x1="0%" y1="0%" x2="100%" y2="100%">
-                <stop offset="0%" stopColor="#60A5FA" stopOpacity="0.8" />
-                <stop offset="100%" stopColor="#A78BFA" stopOpacity="0.2" />
-              </linearGradient>
-              <linearGradient id="gradient-1" x1="0%" y1="0%" x2="100%" y2="100%">
-                <stop offset="0%" stopColor="#34D399" stopOpacity="0.8" />
-                <stop offset="100%" stopColor="#60A5FA" stopOpacity="0.2" />
-              </linearGradient>
-              <linearGradient id="gradient-2" x1="0%" y1="0%" x2="100%" y2="100%">
-                <stop offset="0%" stopColor="#F472B6" stopOpacity="0.8" />
-                <stop offset="100%" stopColor="#A78BFA" stopOpacity="0.2" />
-              </linearGradient>
-            </defs>
-          </svg>
         </div>
 
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10 h-full flex flex-col justify-center">
-          <div 
-            className="text-center mb-20"
-            style={{
-              transform: `translateY(${(1 - scrollProgress) * 50}px)`,
-              opacity: scrollProgress,
-              transition: 'all 0.6s ease-out'
-            }}
-          >
+          <div className="text-center mb-20">
             <h2 className="text-4xl lg:text-6xl font-bold text-white mb-6 bg-gradient-to-r from-white via-cyan-200 to-blue-200 bg-clip-text text-transparent">
               Interactive Platform Experience
             </h2>
             <p className="text-xl text-white/90 max-w-3xl mx-auto">
-              Hover over any capability to explore our dynamic AI-powered platform
+              Discover our AI-powered capabilities through an interactive experience
             </p>
           </div>
 
           <div className="relative flex items-center justify-center min-h-[700px]">
-            {/* Circular Menu */}
-            <div className="relative w-96 h-96 md:w-[500px] md:h-[500px]">
-              {/* Center Hub */}
-              <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 z-20">
-                <div className="w-24 h-24 md:w-32 md:h-32 bg-gradient-to-br from-white to-gray-100 rounded-full flex items-center justify-center shadow-2xl border-4 border-white/20">
-                  <div className="text-voiceup-navy text-lg md:text-xl font-bold">
-                    VoiceUp
+            {/* Central AI Hub */}
+            <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 z-20">
+              <div className="relative">
+                {/* Outer rotating ring */}
+                <div className="w-48 h-48 border-2 border-cyan-400/30 rounded-full animate-spin" style={{ animationDuration: '20s' }}>
+                  <div className="absolute inset-4 border border-blue-400/20 rounded-full"></div>
+                  <div className="absolute inset-8 border border-purple-400/10 rounded-full"></div>
+                </div>
+                
+                {/* Inner hub */}
+                <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-32 h-32 bg-gradient-to-br from-cyan-500 to-blue-600 rounded-full flex items-center justify-center shadow-2xl border-4 border-cyan-400/20">
+                  <div className="text-center text-white">
+                    <div className="text-2xl font-bold mb-1">AI</div>
+                    <div className="text-xs font-light">VoiceUp</div>
                   </div>
                 </div>
-              </div>
-
-              {/* Menu Items */}
-              {capabilities.map((capability, index) => {
-                const position = getCircularPosition(index, capabilities.length, 180);
-                const isHovered = hoveredMenuId === capability.id;
                 
-                return (
+                {/* Connection lines to cards */}
+                <svg className="absolute inset-0 w-96 h-96 pointer-events-none -translate-x-1/2 -translate-y-1/2 top-1/2 left-1/2">
+                  {capabilities.map((_, index) => {
+                    const position = getCircularPosition(index, capabilities.length, 180);
+                    return (
+                      <line
+                        key={`connection-${index}`}
+                        x1="192"
+                        y1="192"
+                        x2={192 + position.x}
+                        y2={192 + position.y}
+                        stroke="rgba(34, 211, 238, 0.2)"
+                        strokeWidth="1"
+                        strokeDasharray="2,2"
+                        className={`transition-opacity duration-300 ${hoveredMenuId === capabilities[index].id ? 'opacity-60' : 'opacity-20'}`}
+                      />
+                    );
+                  })}
+                </svg>
+              </div>
+            </div>
+
+            {/* Capability Cards positioned around the hub */}
+            {capabilities.map((capability, index) => {
+              const position = getCircularPosition(index, capabilities.length, 280);
+              const isHovered = hoveredMenuId === capability.id;
+              
+              return (
+                <div
+                  key={capability.id}
+                  className="absolute transition-all duration-500 ease-out"
+                  style={{
+                    left: `calc(50% + ${position.x}px)`,
+                    top: `calc(50% + ${position.y}px)`,
+                    transform: `translate(-50%, -50%) scale(${circularMenuInView ? 1 : 0})`,
+                    animationDelay: `${index * 0.1}s`,
+                    zIndex: isHovered ? 30 : 10
+                  }}
+                  onMouseEnter={() => setHoveredMenuId(capability.id)}
+                  onMouseLeave={() => setHoveredMenuId(null)}
+                >
+                  {/* Card that appears on hover */}
                   <div
-                    key={capability.id}
-                    className="absolute transition-all duration-500 ease-out"
-                    style={{
-                      left: `calc(50% + ${position.x}px)`,
-                      top: `calc(50% + ${position.y}px)`,
-                      transform: `translate(-50%, -50%) scale(${circularMenuInView ? 1 : 0}) ${isHovered ? 'scale(1.2)' : ''}`,
-                      animationDelay: `${index * 0.1}s`,
-                      zIndex: isHovered ? 30 : 10
-                    }}
-                    onMouseEnter={() => setHoveredMenuId(capability.id)}
-                    onMouseLeave={() => setHoveredMenuId(null)}
+                    className={`w-80 bg-white/95 backdrop-blur-lg rounded-2xl shadow-2xl p-6 border border-white/20 transition-all duration-500 ease-out ${
+                      isHovered ? 'opacity-100 scale-100' : 'opacity-0 scale-95 pointer-events-none'
+                    }`}
                   >
-                    {/* Menu Icon */}
-                    <div className={`w-16 h-16 md:w-20 md:h-20 rounded-full flex items-center justify-center cursor-pointer transition-all duration-300 bg-gradient-to-r ${capability.color} shadow-lg hover:shadow-xl border-2 border-white/20`}>
-                      <div className="text-white scale-110">
+                    <div className="flex items-center space-x-3 mb-4">
+                      <div className={`p-3 rounded-xl bg-gradient-to-r ${capability.color} text-white shadow-md`}>
                         {capability.icon}
                       </div>
+                      <h3 className="text-lg font-bold text-gray-800">
+                        {capability.title}
+                      </h3>
                     </div>
-
-                    {/* Hover Description Card */}
-                    <div
-                      className={`absolute top-full mt-4 w-80 bg-white/95 backdrop-blur-lg rounded-2xl shadow-2xl p-6 border border-white/20 transition-all duration-500 ease-out ${
-                        isHovered ? 'opacity-100 translate-y-0 scale-100' : 'opacity-0 translate-y-4 scale-95 pointer-events-none'
-                      }`}
-                      style={{
-                        left: '50%',
-                        transform: `translateX(-50%) ${isHovered ? 'translateY(0)' : 'translateY(16px)'}`,
-                        zIndex: 40
-                      }}
+                    
+                    <p className="text-gray-700 text-sm leading-relaxed mb-4">
+                      {capability.content}
+                    </p>
+                    
+                    <Button 
+                      size="sm"
+                      className={`transition-all duration-300 rounded-full bg-gradient-to-r ${capability.color} text-white shadow-md hover:shadow-lg hover:scale-105`}
                     >
-                      {/* Arrow pointing to icon */}
-                      <div className="absolute -top-2 left-1/2 transform -translate-x-1/2 w-4 h-4 bg-white/95 rotate-45 border-l border-t border-white/20"></div>
-                      
-                      <div className="flex items-center space-x-3 mb-4">
-                        <div className={`p-3 rounded-xl bg-gradient-to-r ${capability.color} text-white shadow-md`}>
-                          {capability.icon}
-                        </div>
-                        <h3 className="text-lg font-bold text-gray-800">
-                          {capability.title}
-                        </h3>
-                      </div>
-                      
-                      <p className="text-gray-700 text-sm leading-relaxed mb-4">
-                        {capability.content}
-                      </p>
-                      
-                      <Button 
-                        size="sm"
-                        className={`transition-all duration-300 rounded-full bg-gradient-to-r ${capability.color} text-white shadow-md hover:shadow-lg hover:scale-105`}
-                      >
-                        Learn More →
-                      </Button>
-                    </div>
-
-                    {/* Connection Lines to Center */}
-                    <svg
-                      className={`absolute inset-0 pointer-events-none transition-opacity duration-500 ${
-                        isHovered ? 'opacity-60' : 'opacity-20'
-                      }`}
-                      style={{
-                        width: '400px',
-                        height: '400px',
-                        left: '50%',
-                        top: '50%',
-                        transform: 'translate(-50%, -50%)'
-                      }}
-                    >
-                      <line
-                        x1="200"
-                        y1="200"
-                        x2={200 + position.x}
-                        y2={200 + position.y}
-                        stroke={`url(#menu-gradient-${index})`}
-                        strokeWidth="2"
-                        strokeDasharray="4,4"
-                        className="animate-pulse"
-                      />
-                      <defs>
-                        <linearGradient id={`menu-gradient-${index}`} x1="0%" y1="0%" x2="100%" y2="100%">
-                          <stop offset="0%" stopColor="#ffffff" stopOpacity="0.8" />
-                          <stop offset="100%" stopColor="#60A5FA" stopOpacity="0.4" />
-                        </linearGradient>
-                      </defs>
-                    </svg>
+                      Read More →
+                    </Button>
                   </div>
-                );
-              })}
-            </div>
+
+                  {/* Small icon indicator (always visible) */}
+                  <div 
+                    className={`absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-12 h-12 rounded-full flex items-center justify-center cursor-pointer transition-all duration-300 bg-gradient-to-r ${capability.color} shadow-lg hover:shadow-xl border-2 border-white/20 ${
+                      isHovered ? 'scale-110' : ''
+                    }`}
+                    style={{
+                      marginTop: isHovered ? '140px' : '0px',
+                      transition: 'all 0.5s ease-out'
+                    }}
+                  >
+                    <div className="text-white scale-75">
+                      {capability.icon}
+                    </div>
+                  </div>
+                </div>
+              );
+            })}
           </div>
         </div>
       </section>
 
       {/* Enhanced Demo Video Section */}
       <section ref={videoSectionRef} className="py-20 bg-voiceup-navy relative overflow-hidden min-h-screen flex items-center">
-        {/* Enhanced Moving Background with better coverage */}
+        {/* Enhanced Moving Background with complete coverage */}
         <div className="absolute inset-0 pointer-events-none overflow-hidden">
           <div 
-            className="absolute -inset-40 opacity-20"
+            className="absolute -inset-[200px] opacity-20"
             style={{
               backgroundImage: `url("data:image/svg+xml,%3Csvg width='100' height='100' viewBox='0 0 100 100' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M11 18c3.866 0 7-3.134 7-7s-3.134-7-7-7-7 3.134-7 7 3.134 7 7 7zm48 25c3.866 0 7-3.134 7-7s-3.134-7-7-7-7 3.134-7 7 3.134 7 7 7zm-43-7c1.657 0 3-1.343 3-3s-1.343-3-3-3-3 1.343-3 3 1.343 3 3 3zm63 31c1.657 0 3-1.343 3-3s-1.343-3-3-3-3 1.343-3 3 1.343 3 3 3zM34 90c1.657 0 3-1.343 3-3s-1.343-3-3-3-3 1.343-3 3 1.343 3 3 3zm56-76c1.657 0 3-1.343 3-3s-1.343-3-3-3-3 1.343-3 3 1.343 3 3 3zM12 86c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm28-65c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm23-11c2.76 0 5-2.24 5-5s-2.24-5-5-5-5 2.24-5 5 2.24 5 5 5zm-6 60c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm29 22c2.76 0 5-2.24 5-5s-2.24-5-5-5-5 2.24-5 5 2.24 5 5 5zM32 63c2.76 0 5-2.24 5-5s-2.24-5-5-5-5 2.24-5 5 2.24 5 5 5zm57-13c2.76 0 5-2.24 5-5s-2.24-5-5-5-5 2.24-5 5 2.24 5 5 5zm-9-21c1.105 0 2-.895 2-2s-.895-2-2-2-2 .895-2 2 .895 2 2 2zM60 91c1.105 0 2-.895 2-2s-.895-2-2-2-2 .895-2 2 .895 2 2 2zM35 41c1.105 0 2-.895 2-2s-.895-2-2-2-2 .895-2 2 .895 2 2 2zM12 60c1.105 0 2-.895 2-2s-.895-2-2-2-2 .895-2 2 .895 2 2 2z' fill='%2360A5FA' fill-opacity='0.4' fill-rule='evenodd'/%3E%3C/svg%3E")`,
               animation: 'float 25s ease-in-out infinite reverse',
-              transform: 'rotate(45deg) scale(2)'
+              transform: 'rotate(45deg) scale(3)'
             }}
           />
-          {/* Additional rotating layer for complete coverage */}
           <div 
-            className="absolute -inset-40 opacity-15"
+            className="absolute -inset-[200px] opacity-15"
             style={{
               backgroundImage: `url("data:image/svg+xml,%3Csvg width='80' height='80' viewBox='0 0 80 80' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='%2360A5FA' fill-opacity='0.3'%3E%3Ccircle cx='40' cy='40' r='2'/%3E%3Ccircle cx='20' cy='20' r='1'/%3E%3Ccircle cx='60' cy='20' r='1'/%3E%3Ccircle cx='20' cy='60' r='1'/%3E%3Ccircle cx='60' cy='60' r='1'/%3E%3C/g%3E%3C/svg%3E")`,
               animation: 'float 30s ease-in-out infinite',
-              transform: 'rotate(-30deg) scale(2.5)'
+              transform: 'rotate(-30deg) scale(4)'
             }}
           />
-          {/* Third layer for maximum coverage */}
           <div 
-            className="absolute -inset-40 opacity-10"
+            className="absolute -inset-[200px] opacity-10"
             style={{
               backgroundImage: `url("data:image/svg+xml,%3Csvg width='120' height='120' viewBox='0 0 120 120' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='%2360A5FA' fill-opacity='0.2'%3E%3Ccircle cx='60' cy='60' r='3'/%3E%3Ccircle cx='30' cy='30' r='1.5'/%3E%3Ccircle cx='90' cy='30' r='1.5'/%3E%3Ccircle cx='30' cy='90' r='1.5'/%3E%3Ccircle cx='90' cy='90' r='1.5'/%3E%3C/g%3E%3C/svg%3E")`,
               animation: 'float 35s ease-in-out infinite reverse',
-              transform: 'rotate(15deg) scale(1.8)'
+              transform: 'rotate(15deg) scale(2.5)'
             }}
           />
         </div>
