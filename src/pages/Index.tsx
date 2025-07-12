@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect, useRef } from 'react';
 import { Link } from 'react-router-dom';
 import { ArrowDown, Mic, BarChart3, Bot, PhoneCall, BrainCircuit, Headphones } from 'lucide-react';
@@ -53,7 +52,7 @@ const Index = () => {
       color: "from-green-500 to-emerald-600",
       iconColor: "text-green-400",
       bgGradient: "from-green-50 to-emerald-50",
-      backgroundImage: "https://images.unsplash.com/photo-1498050108023-c5249f4df085?w=800&h=600&fit=crop"
+      backgroundImage: "https://images.unsplash.com/photo-1605810230434-7631ac76ec81?w=800&h=600&fit=crop"
     },
     {
       id: 4,
@@ -64,7 +63,7 @@ const Index = () => {
       color: "from-orange-500 to-red-600",
       iconColor: "text-orange-400",
       bgGradient: "from-orange-50 to-red-50",
-      backgroundImage: "https://images.unsplash.com/photo-1461749280684-dccba630e2f6?w=800&h=600&fit=crop"
+      backgroundImage: "https://images.unsplash.com/photo-1498050108023-c5249f4df085?w=800&h=600&fit=crop"
     },
     {
       id: 5,
@@ -280,16 +279,24 @@ const Index = () => {
                   }`}
                   onMouseEnter={() => setHoveredCapability(capability.id)}
                 >
-                  {/* Background Image with Zoom Effect */}
+                  {/* Background Image with Blue Tint and Zoom Effect */}
                   <div 
-                    className={`absolute inset-0 bg-cover bg-center transition-transform duration-700 ${
+                    className={`absolute inset-0 bg-cover bg-center transition-all duration-1000 ${
                       hoveredCapability === capability.id || (!hoveredCapability && capability.id === 1)
-                        ? 'scale-110' : 'scale-100'
+                        ? 'scale-110 animate-slow-zoom' : 'scale-100'
                     }`}
                     style={{
                       backgroundImage: `url(${capability.backgroundImage})`,
-                      opacity: 0.1
+                      opacity: 0.15
                     }}
+                  />
+                  
+                  {/* Blue Tint Overlay */}
+                  <div 
+                    className={`absolute inset-0 bg-gradient-to-br from-blue-600/20 to-cyan-600/20 transition-opacity duration-500 ${
+                      hoveredCapability === capability.id || (!hoveredCapability && capability.id === 1)
+                        ? 'opacity-100' : 'opacity-60'
+                    }`}
                   />
                   
                   {/* Content Overlay */}
@@ -325,7 +332,7 @@ const Index = () => {
                       <h3 className="text-2xl font-bold">{selectedCapability.title}</h3>
                     </div>
                   </div>
-                  <div className="p-8">
+                  <div className="p-8 animate-slow-zoom">
                     <p className="text-gray-600 text-lg leading-relaxed mb-6">
                       {selectedCapability.content}
                     </p>
@@ -343,67 +350,8 @@ const Index = () => {
         </div>
       </section>
 
-      {/* Completely New Interactive Platform Experience */}
+      {/* Simplified Interactive Platform Experience */}
       <section ref={circularMenuRef} className="py-32 bg-gradient-to-br from-gray-900 via-blue-900 to-purple-900 relative overflow-hidden min-h-screen">
-        {/* Dynamic Tech Background */}
-        <div className="absolute inset-0 pointer-events-none">
-          {/* Animated Grid Pattern */}
-          <div className="absolute inset-0 opacity-20">
-            <div 
-              className="w-full h-full"
-              style={{
-                backgroundImage: `
-                  linear-gradient(rgba(59, 130, 246, 0.1) 1px, transparent 1px),
-                  linear-gradient(90deg, rgba(59, 130, 246, 0.1) 1px, transparent 1px)
-                `,
-                backgroundSize: '50px 50px',
-                animation: 'grid-move 20s linear infinite'
-              }}
-            />
-          </div>
-          
-          {/* Floating Tech Elements */}
-          {[...Array(15)].map((_, i) => (
-            <div
-              key={`tech-${i}`}
-              className="absolute animate-pulse"
-              style={{
-                left: `${Math.random() * 100}%`,
-                top: `${Math.random() * 100}%`,
-                animation: `float-tech ${4 + Math.random() * 6}s ease-in-out infinite`,
-                animationDelay: `${Math.random() * 3}s`
-              }}
-            >
-              <div className="w-2 h-2 bg-cyan-400 rounded-full shadow-lg shadow-cyan-400/50" />
-            </div>
-          ))}
-          
-          {/* Data Stream Lines */}
-          <svg className="absolute inset-0 w-full h-full opacity-30">
-            {[...Array(8)].map((_, i) => (
-              <line
-                key={`stream-${i}`}
-                x1={`${i * 12.5}%`}
-                y1="0%"
-                x2={`${i * 12.5 + 5}%`}
-                y2="100%"
-                stroke="url(#streamGradient)"
-                strokeWidth="1"
-                strokeDasharray="5,10"
-                className="animate-pulse"
-                style={{ animationDelay: `${i * 0.2}s` }}
-              />
-            ))}
-            <defs>
-              <linearGradient id="streamGradient" x1="0%" y1="0%" x2="0%" y2="100%">
-                <stop offset="0%" stopColor="rgba(59, 130, 246, 0)" />
-                <stop offset="50%" stopColor="rgba(59, 130, 246, 0.6)" />
-                <stop offset="100%" stopColor="rgba(59, 130, 246, 0)" />
-              </linearGradient>
-            </defs>
-          </svg>
-        </div>
-
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
           <div className="text-center mb-20">
             <h2 className="text-4xl lg:text-6xl font-bold text-white mb-6 bg-gradient-to-r from-white via-cyan-200 to-blue-200 bg-clip-text text-transparent">
@@ -419,11 +367,22 @@ const Index = () => {
             {capabilities.slice(0, 3).map((capability, index) => (
               <div
                 key={capability.id}
-                className="group relative bg-white/10 backdrop-blur-lg rounded-2xl p-8 border border-white/20 hover:border-cyan-400/50 transition-all duration-500 hover:scale-105"
+                className="group relative bg-white/10 backdrop-blur-lg rounded-2xl p-8 border border-white/20 hover:border-cyan-400/50 transition-all duration-500 hover:scale-105 overflow-hidden"
                 style={{
                   animation: `fade-up 0.8s ease-out ${index * 0.2}s both`
                 }}
               >
+                {/* Background Image with Blue Tint and Zoom Effect */}
+                <div 
+                  className="absolute inset-0 bg-cover bg-center opacity-20 group-hover:opacity-30 transition-all duration-1000 animate-slow-zoom"
+                  style={{
+                    backgroundImage: `url(${capability.backgroundImage})`
+                  }}
+                />
+                
+                {/* Blue Tint Overlay */}
+                <div className="absolute inset-0 bg-gradient-to-br from-blue-600/30 to-cyan-600/30 group-hover:opacity-100 transition-opacity duration-500" />
+                
                 <div className="absolute inset-0 bg-gradient-to-br from-cyan-400/10 to-blue-600/10 rounded-2xl opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
                 
                 <div className="relative z-10">
@@ -450,11 +409,22 @@ const Index = () => {
             {capabilities.slice(3).map((capability, index) => (
               <div
                 key={capability.id}
-                className="group relative bg-white/10 backdrop-blur-lg rounded-2xl p-8 border border-white/20 hover:border-cyan-400/50 transition-all duration-500 hover:scale-105"
+                className="group relative bg-white/10 backdrop-blur-lg rounded-2xl p-8 border border-white/20 hover:border-cyan-400/50 transition-all duration-500 hover:scale-105 overflow-hidden"
                 style={{
                   animation: `fade-up 0.8s ease-out ${(index + 3) * 0.2}s both`
                 }}
               >
+                {/* Background Image with Blue Tint and Zoom Effect */}
+                <div 
+                  className="absolute inset-0 bg-cover bg-center opacity-20 group-hover:opacity-30 transition-all duration-1000 animate-slow-zoom"
+                  style={{
+                    backgroundImage: `url(${capability.backgroundImage})`
+                  }}
+                />
+                
+                {/* Blue Tint Overlay */}
+                <div className="absolute inset-0 bg-gradient-to-br from-blue-600/30 to-cyan-600/30 group-hover:opacity-100 transition-opacity duration-500" />
+                
                 <div className="absolute inset-0 bg-gradient-to-br from-cyan-400/10 to-blue-600/10 rounded-2xl opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
                 
                 <div className="relative z-10">
@@ -501,38 +471,47 @@ const Index = () => {
         <div className="absolute inset-0 pointer-events-none overflow-hidden">
           {/* Primary Layer - Larger Coverage */}
           <div 
-            className="absolute -inset-[300px] opacity-20"
+            className="absolute -inset-[600px] opacity-20"
             style={{
               backgroundImage: `url("data:image/svg+xml,%3Csvg width='100' height='100' viewBox='0 0 100 100' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M11 18c3.866 0 7-3.134 7-7s-3.134-7-7-7-7 3.134-7 7 3.134 7 7 7zm48 25c3.866 0 7-3.134 7-7s-3.134-7-7-7-7 3.134-7 7 3.134 7 7 7zm-43-7c1.657 0 3-1.343 3-3s-1.343-3-3-3-3 1.343-3 3 1.343 3 3 3zm63 31c1.657 0 3-1.343 3-3s-1.343-3-3-3-3 1.343-3 3 1.343 3 3 3zM34 90c1.657 0 3-1.343 3-3s-1.343-3-3-3-3 1.343-3 3 1.343 3 3 3zm56-76c1.657 0 3-1.343 3-3s-1.343-3-3-3-3 1.343-3 3 1.343 3 3 3zM12 86c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm28-65c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm23-11c2.76 0 5-2.24 5-5s-2.24-5-5-5-5 2.24-5 5 2.24 5 5 5zm-6 60c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm29 22c2.76 0 5-2.24 5-5s-2.24-5-5-5-5 2.24-5 5 2.24 5 5 5zM32 63c2.76 0 5-2.24 5-5s-2.24-5-5-5-5 2.24-5 5 2.24 5 5 5zm57-13c2.76 0 5-2.24 5-5s-2.24-5-5-5-5 2.24-5 5 2.24 5 5 5zm-9-21c1.105 0 2-.895 2-2s-.895-2-2-2-2 .895-2 2 .895 2 2 2zM60 91c1.105 0 2-.895 2-2s-.895-2-2-2-2 .895-2 2 .895 2 2 2zM35 41c1.105 0 2-.895 2-2s-.895-2-2-2-2 .895-2 2 .895 2 2 2zM12 60c1.105 0 2-.895 2-2s-.895-2-2-2-2 .895-2 2 .895 2 2 2z' fill='%2360A5FA' fill-opacity='0.4' fill-rule='evenodd'/%3E%3C/svg%3E")`,
               animation: 'float 25s ease-in-out infinite reverse',
-              transform: 'rotate(45deg) scale(4)'
+              transform: 'rotate(45deg) scale(8)'
             }}
           />
           {/* Secondary Layer - Different Pattern */}
           <div 
-            className="absolute -inset-[400px] opacity-15"
+            className="absolute -inset-[700px] opacity-15"
             style={{
               backgroundImage: `url("data:image/svg+xml,%3Csvg width='80' height='80' viewBox='0 0 80 80' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='%2360A5FA' fill-opacity='0.3'%3E%3Ccircle cx='40' cy='40' r='2'/%3E%3Ccircle cx='20' cy='20' r='1'/%3E%3Ccircle cx='60' cy='20' r='1'/%3E%3Ccircle cx='20' cy='60' r='1'/%3E%3Ccircle cx='60' cy='60' r='1'/%3E%3C/g%3E%3C/svg%3E")`,
               animation: 'float 30s ease-in-out infinite',
-              transform: 'rotate(-30deg) scale(5)'
+              transform: 'rotate(-30deg) scale(9)'
             }}
           />
           {/* Tertiary Layer - Largest Coverage */}
           <div 
-            className="absolute -inset-[500px] opacity-10"
+            className="absolute -inset-[800px] opacity-10"
             style={{
               backgroundImage: `url("data:image/svg+xml,%3Csvg width='120' height='120' viewBox='0 0 120 120' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='%2360A5FA' fill-opacity='0.2'%3E%3Ccircle cx='60' cy='60' r='3'/%3E%3Ccircle cx='30' cy='30' r='1.5'/%3E%3Ccircle cx='90' cy='30' r='1.5'/%3E%3Ccircle cx='30' cy='90' r='1.5'/%3E%3Ccircle cx='90' cy='90' r='1.5'/%3E%3C/g%3E%3C/svg%3E")`,
               animation: 'float 35s ease-in-out infinite reverse',
-              transform: 'rotate(15deg) scale(6)'
+              transform: 'rotate(15deg) scale(10)'
             }}
           />
           {/* Fourth Layer - Maximum Coverage */}
           <div 
-            className="absolute -inset-[600px] opacity-8"
+            className="absolute -inset-[900px] opacity-8"
             style={{
               backgroundImage: `url("data:image/svg+xml,%3Csvg width='200' height='200' viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M20 20h5v5h-5zm30 0h5v5h-5zm30 0h5v5h-5zm30 0h5v5h-5zm30 0h5v5h-5zm30 0h5v5h-5z' fill='%2360A5FA' fill-opacity='0.1'/%3E%3C/svg%3E")`,
               animation: 'float 40s ease-in-out infinite',
-              transform: 'rotate(-45deg) scale(7)'
+              transform: 'rotate(-45deg) scale(11)'
+            }}
+          />
+          {/* Fifth Layer - Ultra Coverage */}
+          <div 
+            className="absolute -inset-[1000px] opacity-6"
+            style={{
+              backgroundImage: `url("data:image/svg+xml,%3Csvg width='150' height='150' viewBox='0 0 150 150' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='%2360A5FA' fill-opacity='0.15'%3E%3Ccircle cx='75' cy='75' r='2'/%3E%3Ccircle cx='25' cy='25' r='1'/%3E%3Ccircle cx='125' cy='25' r='1'/%3E%3Ccircle cx='25' cy='125' r='1'/%3E%3Ccircle cx='125' cy='125' r='1'/%3E%3C/g%3E%3C/svg%3E")`,
+              animation: 'float 45s ease-in-out infinite reverse',
+              transform: 'rotate(60deg) scale(12)'
             }}
           />
         </div>
