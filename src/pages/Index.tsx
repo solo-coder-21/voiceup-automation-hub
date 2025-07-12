@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect, useRef } from 'react';
 import { Link } from 'react-router-dom';
 import { ArrowDown, Mic, BarChart3, Users, Bot, PhoneCall, Search, Zap, Shield, MessageSquare, BrainCircuit, Headphones } from 'lucide-react';
@@ -15,6 +14,7 @@ const Index = () => {
   const [expandedCards, setExpandedCards] = useState(false);
   const [scrollProgress, setScrollProgress] = useState(0);
   const [hoveredCardId, setHoveredCardId] = useState<number | null>(null);
+  const [selectedIconId, setSelectedIconId] = useState<number | null>(null);
   const dynamicSectionRef = useRef<HTMLDivElement>(null);
   const videoSectionRef = useRef<HTMLDivElement>(null);
   const platformCapabilitiesRef = useRef<HTMLDivElement>(null);
@@ -103,9 +103,10 @@ const Index = () => {
       ([entry]) => {
         setPlatformCapabilitiesInView(entry.isIntersecting);
         if (entry.isIntersecting) {
-          setTimeout(() => setExpandedCards(true), 800);
+          setTimeout(() => setExpandedCards(true), 500);
         } else {
           setExpandedCards(false);
+          setSelectedIconId(null);
         }
       },
       { threshold: 0.2 }
@@ -344,151 +345,135 @@ const Index = () => {
             }}
           >
             <h2 className="text-4xl lg:text-6xl font-bold text-white mb-6 bg-gradient-to-r from-white via-cyan-200 to-blue-200 bg-clip-text text-transparent">
-              Platform Capabilities
+              Interactive Platform Experience
             </h2>
             <p className="text-xl text-white/90 max-w-3xl mx-auto">
-              Experience our dynamic AI-powered platform capabilities
+              Click on any capability below to explore our dynamic AI-powered platform
             </p>
           </div>
 
-          <div className="relative flex items-center justify-center min-h-[700px]">
-            {/* Small Icons (Initial state) */}
-            {!expandedCards && (
-              <div 
-                className="grid grid-cols-3 gap-12 lg:gap-16"
-                style={{
-                  transform: `scale(${0.8 + scrollProgress * 0.2})`,
-                  opacity: platformCapabilitiesInView ? 1 : 0,
-                  transition: 'all 1s ease-out'
-                }}
-              >
-                {capabilities.map((capability, index) => (
+          <div className="relative flex items-center justify-center min-h-[600px]">
+            {/* Icon Grid Layout */}
+            <div className="grid grid-cols-3 grid-rows-2 gap-16 lg:gap-24 max-w-4xl w-full">
+              {capabilities.map((capability, index) => (
+                <div
+                  key={capability.id}
+                  className="relative flex flex-col items-center justify-center"
+                  style={{ 
+                    gridColumn: index < 3 ? index + 1 : index - 2,
+                    gridRow: index < 3 ? 1 : 2
+                  }}
+                >
+                  {/* Small Icon State */}
                   <div
-                    key={capability.id}
-                    className="flex flex-col items-center space-y-4 group cursor-pointer"
-                    style={{ 
+                    className={`cursor-pointer transition-all duration-700 ease-out ${
+                      selectedIconId === capability.id ? 'scale-0 opacity-0' : 'scale-100 opacity-100'
+                    }`}
+                    onClick={() => setSelectedIconId(capability.id)}
+                    style={{
+                      transform: `scale(${platformCapabilitiesInView ? 1 : 0}) ${selectedIconId === capability.id ? 'scale(0)' : ''}`,
                       animationDelay: `${index * 0.15}s`,
-                      transform: `translateY(${Math.sin(Date.now() * 0.001 + index) * 5}px)`,
+                      transition: 'all 0.7s cubic-bezier(0.175, 0.885, 0.32, 1.275)'
                     }}
-                    onMouseEnter={() => setHoveredCardId(capability.id)}
-                    onMouseLeave={() => setHoveredCardId(null)}
                   >
-                    <div 
-                      className={`w-20 h-20 rounded-full flex items-center justify-center border-2 transition-all duration-500 ${
-                        hoveredCardId === capability.id 
-                          ? `bg-gradient-to-r ${capability.color} border-transparent shadow-2xl scale-110` 
-                          : 'bg-white/10 backdrop-blur-sm border-cyan-400/30 hover:bg-white/20 group-hover:scale-105'
-                      }`}
-                    >
-                      <div className={`transition-all duration-300 ${
-                        hoveredCardId === capability.id ? 'text-white scale-110' : capability.iconColor
-                      }`}>
+                    <div className={`w-20 h-20 rounded-full flex items-center justify-center border-2 transition-all duration-500 bg-gradient-to-r ${capability.color} border-transparent shadow-2xl hover:scale-110 group`}>
+                      <div className="text-white scale-110 group-hover:scale-125 transition-transform duration-300">
                         {capability.icon}
                       </div>
                     </div>
-                    <span className={`text-white text-sm font-medium text-center transition-all duration-300 ${
-                      hoveredCardId === capability.id ? 'text-cyan-200 scale-105' : ''
-                    }`}>
+                    <span className="text-white text-sm font-medium text-center mt-4 block transition-all duration-300 group-hover:text-cyan-200">
                       {capability.title}
                     </span>
                   </div>
-                ))}
-              </div>
-            )}
 
-            {/* Advanced Expanded Cards */}
-            {expandedCards && (
-              <div 
-                className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 max-w-7xl w-full"
-                style={{
-                  opacity: expandedCards ? 1 : 0,
-                  transform: `scale(${expandedCards ? 1 : 0.8})`,
-                  transition: 'all 1.2s cubic-bezier(0.175, 0.885, 0.32, 1.275)'
-                }}
-              >
-                {capabilities.map((capability, index) => (
+                  {/* Expanded Card State */}
                   <div
-                    key={capability.id}
-                    className="group relative"
-                    style={{ 
-                      animationDelay: `${index * 0.1}s`,
+                    className={`absolute inset-0 transition-all duration-700 ease-out ${
+                      selectedIconId === capability.id ? 'scale-100 opacity-100 z-20' : 'scale-0 opacity-0 pointer-events-none'
+                    }`}
+                    style={{
+                      width: '350px',
+                      height: '450px',
+                      left: '50%',
+                      top: '50%',
+                      transform: `translate(-50%, -50%) scale(${selectedIconId === capability.id ? 1 : 0})`,
+                      transition: 'all 0.7s cubic-bezier(0.175, 0.885, 0.32, 1.275)'
                     }}
-                    onMouseEnter={() => setHoveredCardId(capability.id)}
-                    onMouseLeave={() => setHoveredCardId(null)}
                   >
-                    {/* Card with advanced hover effects */}
-                    <div className={`relative bg-white/95 backdrop-blur-lg rounded-3xl shadow-2xl p-8 border border-white/20 transition-all duration-700 transform ${
-                      hoveredCardId === capability.id 
-                        ? 'scale-105 shadow-3xl -translate-y-2' 
-                        : 'hover:scale-102 hover:-translate-y-1'
-                    }`}>
-                      
-                      {/* Animated background gradient on hover */}
-                      <div className={`absolute inset-0 rounded-3xl bg-gradient-to-br ${capability.bgGradient} opacity-0 transition-opacity duration-500 ${
-                        hoveredCardId === capability.id ? 'opacity-100' : ''
-                      }`} />
+                    <div className="bg-white/95 backdrop-blur-lg rounded-3xl shadow-2xl p-6 border border-white/20 h-full relative overflow-hidden">
+                      {/* Close Button */}
+                      <button
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          setSelectedIconId(null);
+                        }}
+                        className="absolute top-4 right-4 w-8 h-8 rounded-full bg-gray-200 hover:bg-gray-300 flex items-center justify-center transition-colors duration-200 z-10"
+                      >
+                        <span className="text-gray-600 text-lg font-bold">×</span>
+                      </button>
+
+                      {/* Animated background gradient */}
+                      <div className={`absolute inset-0 rounded-3xl bg-gradient-to-br ${capability.bgGradient} opacity-100`} />
                       
                       {/* Content */}
-                      <div className="relative z-10">
+                      <div className="relative z-10 h-full flex flex-col">
                         <div className="flex items-center space-x-4 mb-6">
-                          <div className={`p-4 rounded-2xl transition-all duration-500 ${
-                            hoveredCardId === capability.id 
-                              ? `bg-gradient-to-r ${capability.color} text-white shadow-lg scale-110` 
-                              : 'bg-gray-100 text-gray-600'
-                          }`}>
+                          <div className={`p-4 rounded-2xl bg-gradient-to-r ${capability.color} text-white shadow-lg`}>
                             {capability.icon}
                           </div>
-                          <h3 className={`text-xl font-bold transition-colors duration-300 ${
-                            hoveredCardId === capability.id ? 'text-gray-800' : 'text-voiceup-navy'
-                          }`}>
+                          <h3 className="text-xl font-bold text-gray-800">
                             {capability.title}
                           </h3>
                         </div>
                         
-                        <p className={`text-gray-700 text-sm leading-relaxed mb-6 transition-colors duration-300 ${
-                          hoveredCardId === capability.id ? 'text-gray-600' : ''
-                        }`}>
+                        <p className="text-gray-700 text-sm leading-relaxed mb-6 flex-1">
                           {capability.content}
                         </p>
                         
                         <Button 
                           size="sm"
-                          className={`transition-all duration-500 rounded-full ${
-                            hoveredCardId === capability.id 
-                              ? `bg-gradient-to-r ${capability.color} text-white shadow-lg hover:shadow-xl scale-105` 
-                              : 'bg-voiceup-skyblue hover:bg-voiceup-periwinkle text-white'
-                          }`}
+                          className={`transition-all duration-500 rounded-full bg-gradient-to-r ${capability.color} text-white shadow-lg hover:shadow-xl hover:scale-105 self-start`}
                         >
                           Learn More →
                         </Button>
                       </div>
-                      
-                      {/* Subtle animated border */}
-                      <div className={`absolute inset-0 rounded-3xl bg-gradient-to-r ${capability.color} opacity-0 transition-opacity duration-500 ${
-                        hoveredCardId === capability.id ? 'opacity-20' : ''
-                      }`} style={{ 
-                        mask: 'linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0)',
-                        maskComposite: 'subtract',
-                        padding: '2px'
-                      }} />
                     </div>
                   </div>
-                ))}
-              </div>
-            )}
+                </div>
+              ))}
+            </div>
+
+            {/* Background overlay when card is selected */}
+            <div
+              className={`fixed inset-0 bg-black/50 backdrop-blur-sm transition-opacity duration-500 ${
+                selectedIconId ? 'opacity-100' : 'opacity-0 pointer-events-none'
+              }`}
+              style={{ zIndex: 15 }}
+              onClick={() => setSelectedIconId(null)}
+            />
           </div>
         </div>
       </section>
 
       {/* Enhanced Demo Video Section */}
       <section ref={videoSectionRef} className="py-20 bg-voiceup-navy relative overflow-hidden min-h-screen flex items-center">
-        {/* Enhanced Moving Background */}
-        <div className="absolute inset-0 pointer-events-none">
+        {/* Enhanced Moving Background with better coverage */}
+        <div className="absolute inset-0 pointer-events-none overflow-hidden">
           <div 
-            className="absolute inset-0 opacity-20"
+            className="absolute -inset-20 opacity-20"
             style={{
               backgroundImage: `url("data:image/svg+xml,%3Csvg width='100' height='100' viewBox='0 0 100 100' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M11 18c3.866 0 7-3.134 7-7s-3.134-7-7-7-7 3.134-7 7 3.134 7 7 7zm48 25c3.866 0 7-3.134 7-7s-3.134-7-7-7-7 3.134-7 7 3.134 7 7 7zm-43-7c1.657 0 3-1.343 3-3s-1.343-3-3-3-3 1.343-3 3 1.343 3 3 3zm63 31c1.657 0 3-1.343 3-3s-1.343-3-3-3-3 1.343-3 3 1.343 3 3 3zM34 90c1.657 0 3-1.343 3-3s-1.343-3-3-3-3 1.343-3 3 1.343 3 3 3zm56-76c1.657 0 3-1.343 3-3s-1.343-3-3-3-3 1.343-3 3 1.343 3 3 3zM12 86c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm28-65c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm23-11c2.76 0 5-2.24 5-5s-2.24-5-5-5-5 2.24-5 5 2.24 5 5 5zm-6 60c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm29 22c2.76 0 5-2.24 5-5s-2.24-5-5-5-5 2.24-5 5 2.24 5 5 5zM32 63c2.76 0 5-2.24 5-5s-2.24-5-5-5-5 2.24-5 5 2.24 5 5 5zm57-13c2.76 0 5-2.24 5-5s-2.24-5-5-5-5 2.24-5 5 2.24 5 5 5zm-9-21c1.105 0 2-.895 2-2s-.895-2-2-2-2 .895-2 2 .895 2 2 2zM60 91c1.105 0 2-.895 2-2s-.895-2-2-2-2 .895-2 2 .895 2 2 2zM35 41c1.105 0 2-.895 2-2s-.895-2-2-2-2 .895-2 2 .895 2 2 2zM12 60c1.105 0 2-.895 2-2s-.895-2-2-2-2 .895-2 2 .895 2 2 2z' fill='%2360A5FA' fill-opacity='0.4' fill-rule='evenodd'/%3E%3C/svg%3E")`,
-              animation: 'float 25s ease-in-out infinite reverse'
+              animation: 'float 25s ease-in-out infinite reverse',
+              transform: 'rotate(45deg) scale(1.5)'
+            }}
+          />
+          {/* Additional rotating layer for better coverage */}
+          <div 
+            className="absolute -inset-32 opacity-15"
+            style={{
+              backgroundImage: `url("data:image/svg+xml,%3Csvg width='80' height='80' viewBox='0 0 80 80' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='%2360A5FA' fill-opacity='0.3'%3E%3Ccircle cx='40' cy='40' r='2'/%3E%3Ccircle cx='20' cy='20' r='1'/%3E%3Ccircle cx='60' cy='20' r='1'/%3E%3Ccircle cx='20' cy='60' r='1'/%3E%3Ccircle cx='60' cy='60' r='1'/%3E%3C/g%3E%3C/svg%3E")`,
+              animation: 'float 30s ease-in-out infinite',
+              transform: 'rotate(-30deg) scale(2)'
             }}
           />
         </div>
@@ -651,135 +636,6 @@ const Index = () => {
                         </div>
                       </div>
                     </div>
-                  </div>
-                </div>
-              </div>
-            </div>
-          </div>
-        </div>
-      </section>
-
-      {/* Architecture Overview - Flowchart */}
-      <section className="py-20 bg-gradient-to-br from-voiceup-blush to-white overflow-hidden">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="text-center mb-16">
-            <h2 className="text-4xl lg:text-5xl font-bold text-voiceup-navy mb-4">
-              Architecture Overview
-            </h2>
-            <p className="text-xl text-gray-600 max-w-3xl mx-auto">
-              Understand how VoiceUp integrates seamlessly with your existing contact center infrastructure
-            </p>
-          </div>
-
-          <div className="bg-gradient-to-br from-yellow-50 to-yellow-100 rounded-3xl shadow-2xl p-8 lg:p-12 relative border-4 border-yellow-200">
-            <div className="relative max-w-4xl mx-auto">
-              {/* Architecture Layout */}
-              <div className="flex flex-col items-center space-y-8">
-                
-                {/* Top Row - PSTN */}
-                <div className="relative">
-                  <div className="group relative">
-                    <div className="bg-gradient-to-r from-blue-500 to-blue-600 text-white px-8 py-4 rounded-2xl shadow-lg cursor-pointer hover:shadow-2xl transition-all duration-300 hover:scale-105 border-2 border-blue-400">
-                      <span className="font-bold text-lg">PSTN</span>
-                    </div>
-                  </div>
-                </div>
-
-                {/* Connection Line */}
-                <div className="flex flex-col items-center">
-                  <div className="w-0.5 h-6 bg-gray-400"></div>
-                  <span className="text-xs bg-gray-200 px-3 py-1 rounded-full font-semibold border">SIP</span>
-                  <div className="w-0.5 h-6 bg-gray-400"></div>
-                </div>
-
-                {/* Second Row - SBC, VoiceUp Service, AI Service */}
-                <div className="flex items-center justify-center space-x-12 w-full">
-                  <div className="flex flex-col items-center">
-                    <div className="group relative">
-                      <div className="bg-gradient-to-r from-blue-600 to-blue-700 text-white px-8 py-4 rounded-2xl shadow-lg cursor-pointer hover:shadow-2xl transition-all duration-300 hover:scale-105 border-2 border-blue-500">
-                        <span className="font-bold text-lg">SBC</span>
-                      </div>
-                    </div>
-                    <div className="mt-3">
-                      <span className="text-xs bg-gray-200 px-3 py-1 rounded-full font-semibold border">SIPREC/SIP</span>
-                    </div>
-                  </div>
-
-                  <div className="flex flex-col items-center">
-                    <div className="group relative">
-                      <div className="bg-gradient-to-r from-voiceup-skyblue to-voiceup-periwinkle text-white px-10 py-6 rounded-2xl shadow-lg cursor-pointer hover:shadow-2xl transition-all duration-300 hover:scale-105 border-2 border-voiceup-navy">
-                        <div className="flex flex-col items-center">
-                          <Mic className="h-6 w-6 mb-2" />
-                          <span className="font-bold text-lg">VoiceUp Service</span>
-                        </div>
-                      </div>
-                    </div>
-                  </div>
-
-                  <div className="flex flex-col items-center">
-                    <div className="group relative">
-                      <div className="bg-gradient-to-r from-purple-500 to-purple-600 text-white px-10 py-6 rounded-2xl shadow-lg cursor-pointer hover:shadow-2xl transition-all duration-300 hover:scale-105 border-2 border-purple-400">
-                        <div className="flex flex-col items-center">
-                          <Bot className="h-6 w-6 mb-2" />
-                          <span className="font-bold text-lg">AI Service</span>
-                        </div>
-                      </div>
-                    </div>
-                    <div className="mt-3">
-                      <span className="text-xs bg-gray-200 px-3 py-1 rounded-full font-semibold border">API</span>
-                    </div>
-                  </div>
-                </div>
-
-                {/* Connection from SBC to PBX */}
-                <div className="flex justify-start w-full">
-                  <div className="flex flex-col items-center ml-8">
-                    <div className="w-0.5 h-6 bg-gray-400"></div>
-                    <span className="text-xs bg-gray-200 px-3 py-1 rounded-full font-semibold border">SIP</span>
-                    <div className="w-0.5 h-6 bg-gray-400"></div>
-                  </div>
-                </div>
-
-                {/* PBX Row */}
-                <div className="flex justify-start w-full">
-                  <div className="group relative ml-8">
-                    <div className="bg-gradient-to-r from-blue-600 to-blue-700 text-white px-12 py-6 rounded-2xl shadow-lg cursor-pointer hover:shadow-2xl transition-all duration-300 hover:scale-105 border-2 border-blue-500">
-                      <div className="flex items-center space-x-3">
-                        <PhoneCall className="h-6 w-6" />
-                        <span className="font-bold text-lg">PBX</span>
-                      </div>
-                    </div>
-                  </div>
-                </div>
-
-                {/* Vertical connection from VoiceUp Service to Agent Desktops */}
-                <div className="flex justify-center">
-                  <div className="flex flex-col items-center">
-                    <div className="w-0.5 h-8 bg-gray-400"></div>
-                    <div className="w-4 h-4 bg-voiceup-skyblue rounded-full animate-pulse"></div>
-                    <div className="w-0.5 h-6 bg-gray-400"></div>
-                  </div>
-                </div>
-
-                {/* Agent Desktop Level */}
-                <div className="flex items-center justify-center space-x-6 relative">
-                  {[1, 2, 3].map((i) => (
-                    <div key={i} className="group relative">
-                      <div className="bg-gradient-to-br from-voiceup-skyblue to-voiceup-periwinkle text-white px-6 py-6 rounded-2xl shadow-lg cursor-pointer hover:shadow-2xl hover:scale-105 transition-all duration-300 border-2 border-voiceup-navy">
-                        <div className="text-center">
-                          <Users className="h-6 w-6 mx-auto mb-2" />
-                          <div className="text-sm font-bold">VoiceUp</div>
-                          <div className="text-xs">Agent Desktop</div>
-                        </div>
-                      </div>
-                    </div>
-                  ))}
-                </div>
-
-                {/* Customer Premise Label */}
-                <div className="mt-6 text-center">
-                  <div className="inline-block px-8 py-3 bg-gradient-to-r from-yellow-400 to-yellow-500 rounded-full shadow-lg border-2 border-yellow-300">
-                    <span className="text-yellow-900 font-bold text-lg">Customer Premise</span>
                   </div>
                 </div>
               </div>
