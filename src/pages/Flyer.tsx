@@ -48,10 +48,14 @@ const Flyer = () => {
             <div className="bg-gradient-to-r from-voiceup-navy to-voiceup-skyblue text-white p-8">
               <div className="flex items-center justify-between">
                 <div className="flex items-center space-x-3">
-                  <img 
-                    src="/lovable-uploads/771100c5-8633-4c2a-adc9-43008ea382e0.png" 
-                    alt="VoiceUp Logo" 
+                  <img
+                    src="/voiceup-logo.png"
+                    alt="VoiceUp Logo"
+                    width={48}
+                    height={48}
                     className="h-12 w-12"
+                    loading="lazy"
+                    decoding="async"
                   />
                   <div>
                     <h1 className="text-3xl font-bold">VoiceUp</h1>

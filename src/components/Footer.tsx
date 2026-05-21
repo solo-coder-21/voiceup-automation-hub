@@ -15,10 +15,14 @@ const Footer = () => {
           {/* Company Info */}
           <div className="space-y-4">
             <div className="flex items-center space-x-2 cursor-pointer" onClick={scrollToTop}>
-              <img 
-                src="/lovable-uploads/771100c5-8633-4c2a-adc9-43008ea382e0.png" 
-                alt="VoiceUp Logo" 
+              <img
+                src="/voiceup-logo.png"
+                alt="VoiceUp Logo"
+                width={32}
+                height={32}
                 className="h-8 w-8"
+                loading="lazy"
+                decoding="async"
               />
               <span className="text-xl font-bold">VoiceUp</span>
             </div>

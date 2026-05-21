@@ -34,10 +34,14 @@ const Brochure = () => {
                   <div className="h-full flex flex-col justify-between">
                     <div>
                       <div className="flex items-center space-x-3 mb-8">
-                        <img 
-                          src="/lovable-uploads/771100c5-8633-4c2a-adc9-43008ea382e0.png" 
-                          alt="VoiceUp Logo" 
+                        <img
+                          src="/voiceup-logo.png"
+                          alt="VoiceUp Logo"
+                          width={40}
+                          height={40}
                           className="h-10 w-10"
+                          loading="lazy"
+                          decoding="async"
                         />
                         <span className="text-2xl font-bold">VoiceUp</span>
                       </div>

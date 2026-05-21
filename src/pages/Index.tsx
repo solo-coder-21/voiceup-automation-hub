@@ -7,18 +7,15 @@ import Footer from '@/components/Footer';
 
 const Index = () => {
   const [hoveredCapability, setHoveredCapability] = useState<number | null>(null);
-  const [isInView, setIsInView] = useState(false);
   const [videoInView, setVideoInView] = useState(false);
-  const [videoScale, setVideoScale] = useState(0.6);
   const [platformCapabilitiesInView, setPlatformCapabilitiesInView] = useState(false);
-  const [expandedCards, setExpandedCards] = useState(false);
-  const [scrollProgress, setScrollProgress] = useState(0);
-  const [hoveredMenuId, setHoveredMenuId] = useState<number | null>(null);
   const [circularMenuInView, setCircularMenuInView] = useState(false);
-  const dynamicSectionRef = useRef<HTMLDivElement>(null);
+
+  const heroVideoRef = useRef<HTMLVideoElement>(null);
   const videoSectionRef = useRef<HTMLDivElement>(null);
   const platformCapabilitiesRef = useRef<HTMLDivElement>(null);
   const circularMenuRef = useRef<HTMLDivElement>(null);
+  const videoFrameRef = useRef<HTMLDivElement>(null);
 
   const capabilities = [
     {
@@ -34,7 +31,7 @@ const Index = () => {
     },
     {
       id: 2,
-      title: "Speech Recognition", 
+      title: "Speech Recognition",
       icon: <Mic className="h-8 w-8" />,
       content: "Unlock the power of voice. Our advanced speech recognition technology transforms spoken words into accurate text, effortlessly. Streamline workflows, enhance accessibility, and connect with your audience like never before.",
       image: "https://images.unsplash.com/photo-1589254065878-42c9da997008?w=600&h=400&fit=crop",
@@ -91,138 +88,109 @@ const Index = () => {
 
   const selectedCapability = hoveredCapability ? capabilities.find(c => c.id === hoveredCapability) : capabilities[0];
 
+  // IntersectionObservers — used to gate the heaviest animations to when their section is on-screen.
   useEffect(() => {
-    const observer = new IntersectionObserver(
-      ([entry]) => {
-        setIsInView(entry.isIntersecting);
-      },
-      { threshold: 0.3 }
-    );
-
     const videoObserver = new IntersectionObserver(
-      ([entry]) => {
-        setVideoInView(entry.isIntersecting);
-      },
+      ([entry]) => setVideoInView(entry.isIntersecting),
       { threshold: 0.1 }
     );
 
     const platformCapabilitiesObserver = new IntersectionObserver(
-      ([entry]) => {
-        setPlatformCapabilitiesInView(entry.isIntersecting);
-        if (entry.isIntersecting) {
-          setTimeout(() => setExpandedCards(true), 500);
-        } else {
-          setExpandedCards(false);
-        }
-      },
+      ([entry]) => setPlatformCapabilitiesInView(entry.isIntersecting),
       { threshold: 0.2 }
     );
 
     const circularMenuObserver = new IntersectionObserver(
-      ([entry]) => {
-        setCircularMenuInView(entry.isIntersecting);
-      },
-      { threshold: 0.3 }
+      ([entry]) => setCircularMenuInView(entry.isIntersecting),
+      { threshold: 0.2 }
     );
 
-    if (dynamicSectionRef.current) {
-      observer.observe(dynamicSectionRef.current);
-    }
-
-    if (videoSectionRef.current) {
-      videoObserver.observe(videoSectionRef.current);
-    }
-
-    if (platformCapabilitiesRef.current) {
-      platformCapabilitiesObserver.observe(platformCapabilitiesRef.current);
-    }
-
-    if (circularMenuRef.current) {
-      circularMenuObserver.observe(circularMenuRef.current);
-    }
+    if (videoSectionRef.current) videoObserver.observe(videoSectionRef.current);
+    if (platformCapabilitiesRef.current) platformCapabilitiesObserver.observe(platformCapabilitiesRef.current);
+    if (circularMenuRef.current) circularMenuObserver.observe(circularMenuRef.current);
 
     return () => {
-      observer.disconnect();
       videoObserver.disconnect();
       platformCapabilitiesObserver.disconnect();
       circularMenuObserver.disconnect();
     };
   }, []);
 
-  // Enhanced video scaling effect based on scroll position
+  // Pause the hero background <video> when the hero leaves the viewport so it doesn't keep
+  // decoding frames while the user scrolls deeper into the page.
   useEffect(() => {
-    const handleScroll = () => {
-      if (!videoSectionRef.current) return;
-      
-      const section = videoSectionRef.current;
-      const rect = section.getBoundingClientRect();
-      const windowHeight = window.innerHeight;
-      
-      const sectionHeight = rect.height;
-      const sectionTop = rect.top;
-      const sectionBottom = rect.bottom;
-      
-      if (sectionTop <= windowHeight && sectionBottom >= 0) {
-        const sectionCenter = sectionTop + sectionHeight / 2;
-        const viewportCenter = windowHeight / 2;
-        const distanceFromCenter = Math.abs(sectionCenter - viewportCenter);
-        const maxDistance = windowHeight / 2 + sectionHeight / 2;
-        
-        const progress = Math.max(0, 1 - distanceFromCenter / maxDistance);
-        const scale = 0.5 + (progress * 0.5); // Scale from 0.5 to 1.0
-        
-        setVideoScale(Math.min(1, Math.max(0.5, scale)));
-      }
-    };
+    const video = heroVideoRef.current;
+    if (!video) return;
 
-    // Advanced scroll progress for platform capabilities
-    const handlePlatformScroll = () => {
-      if (!platformCapabilitiesRef.current) return;
-      
-      const section = platformCapabilitiesRef.current;
-      const rect = section.getBoundingClientRect();
-      const windowHeight = window.innerHeight;
-      
-      if (rect.top <= windowHeight && rect.bottom >= 0) {
-        const progress = Math.max(0, Math.min(1, (windowHeight - rect.top) / (windowHeight + rect.height)));
-        setScrollProgress(progress);
-      }
-    };
-
-    const combinedScrollHandler = () => {
-      handleScroll();
-      handlePlatformScroll();
-    };
-
-    window.addEventListener('scroll', combinedScrollHandler);
-    combinedScrollHandler();
-    
-    return () => window.removeEventListener('scroll', combinedScrollHandler);
+    const heroObserver = new IntersectionObserver(
+      ([entry]) => {
+        if (entry.isIntersecting) {
+          video.play().catch(() => {});
+        } else {
+          video.pause();
+        }
+      },
+      { threshold: 0.05 }
+    );
+    heroObserver.observe(video);
+    return () => heroObserver.disconnect();
   }, []);
 
-  // Get circular position for menu items
-  const getCircularPosition = (index: number, total: number, radius: number) => {
-    const angle = (index * 360) / total - 90; // Start from top
-    const radian = (angle * Math.PI) / 180;
-    return {
-      x: Math.cos(radian) * radius,
-      y: Math.sin(radian) * radius,
+  // Scroll-linked styles driven via CSS variables + rAF, instead of React state. This keeps
+  // the scroll handler from re-rendering the whole page on every frame, which was the main
+  // source of scroll-jacking lag.
+  useEffect(() => {
+    let ticking = false;
+
+    const update = () => {
+      ticking = false;
+
+      const frame = videoFrameRef.current;
+      if (frame && videoSectionRef.current) {
+        const rect = videoSectionRef.current.getBoundingClientRect();
+        const wh = window.innerHeight;
+        if (rect.top <= wh && rect.bottom >= 0) {
+          const sectionCenter = rect.top + rect.height / 2;
+          const distance = Math.abs(sectionCenter - wh / 2);
+          const maxDistance = wh / 2 + rect.height / 2;
+          const progress = Math.max(0, 1 - distance / maxDistance);
+          const scale = Math.min(1, Math.max(0.5, 0.5 + progress * 0.5));
+          frame.style.setProperty('--video-scale', scale.toFixed(3));
+        }
+      }
     };
-  };
+
+    const onScroll = () => {
+      if (!ticking) {
+        ticking = true;
+        requestAnimationFrame(update);
+      }
+    };
+
+    update();
+    window.addEventListener('scroll', onScroll, { passive: true });
+    window.addEventListener('resize', onScroll, { passive: true });
+    return () => {
+      window.removeEventListener('scroll', onScroll);
+      window.removeEventListener('resize', onScroll);
+    };
+  }, []);
 
   return (
     <div className="min-h-screen">
       <Navbar />
-      
+
       {/* Hero Section */}
       <section className="relative h-screen flex items-center justify-center overflow-hidden">
-        {/* Background Video */}
         <div className="absolute inset-0 z-0">
-          <video 
-            autoPlay 
-            muted 
-            loop 
+          <video
+            ref={heroVideoRef}
+            autoPlay
+            muted
+            loop
             playsInline
+            preload="metadata"
+            poster="/voiceup-logo.png"
             className="w-full h-full object-cover"
           >
             <source src="/lovable-uploads/bghr.mp4" type="video/mp4" />
@@ -232,111 +200,113 @@ const Index = () => {
 
         {/* Hero Content */}
         <div className="relative z-10 text-center text-white px-4 max-w-4xl mx-auto">
-          <h1 className="text-5xl lg:text-7xl font-bold mb-6 animate-fade-in">
+          <h1 className="text-4xl sm:text-5xl lg:text-7xl font-bold mb-6 animate-fade-in">
             VoiceUp: Innovative <span className="gradient-text text-transparent bg-gradient-to-r from-voiceup-skyblue to-white bg-clip-text">Voice Solutions</span>
           </h1>
-          <p className="text-xl lg:text-2xl mb-8 text-gray-200 font-light animate-fade-in" style={{animationDelay: '0.2s'}}>
+          <p className="text-base sm:text-lg lg:text-2xl mb-8 text-gray-200 font-light animate-fade-in" style={{ animationDelay: '0.2s' }}>
             Explore the cutting-edge advancements in voice technology and how VoiceUp is redefining communication and interaction in today's AI landscape.
           </p>
-          <Button 
+          <Button
             asChild
             size="lg"
             className="bg-voiceup-skyblue hover:bg-voiceup-periwinkle text-white px-8 py-4 text-lg rounded-full animate-fade-in"
-            style={{animationDelay: '0.4s'}}
+            style={{ animationDelay: '0.4s' }}
           >
             <Link to="/contact">Get Started</Link>
           </Button>
         </div>
 
-        {/* Scroll Indicator */}
         <div className="absolute bottom-8 left-1/2 transform -translate-x-1/2 text-white animate-bounce-down">
           <ArrowDown className="h-6 w-6" />
         </div>
       </section>
 
-      {/* Platform Capabilities with Background Images */}
-      <section className="py-20 bg-gradient-to-br from-gray-50 to-white">
+      {/* Platform Capabilities */}
+      <section ref={platformCapabilitiesRef} className="py-16 sm:py-20 bg-gradient-to-br from-gray-50 to-white">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="text-center mb-16">
-            <h2 className="text-4xl lg:text-5xl font-bold text-voiceup-navy mb-4">
+          <div className="text-center mb-12 sm:mb-16">
+            <h2 className="text-3xl sm:text-4xl lg:text-5xl font-bold text-voiceup-navy mb-4">
               Platform Capabilities
             </h2>
-            <p className="text-xl text-gray-600 max-w-3xl mx-auto">
+            <p className="text-base sm:text-xl text-gray-600 max-w-3xl mx-auto">
               Discover how our comprehensive voice automation platform transforms contact center operations
             </p>
           </div>
 
-          <div className="grid lg:grid-cols-2 gap-12 items-start">
-            {/* Left Side - Interactive Cards with Background Images */}
+          <div
+            className="grid lg:grid-cols-2 gap-8 lg:gap-12 items-start"
+            data-active={platformCapabilitiesInView ? 'true' : 'false'}
+          >
+            {/* Left Side - Interactive Cards */}
             <div className="space-y-4">
-              {capabilities.map((capability) => (
-                <div
-                  key={capability.id}
-                  className={`relative p-6 rounded-2xl border-2 cursor-pointer transition-all duration-500 overflow-hidden ${
-                    hoveredCapability === capability.id || (!hoveredCapability && capability.id === 1)
-                      ? 'border-voiceup-skyblue bg-voiceup-skyblue text-white shadow-xl scale-105'
-                      : 'border-gray-200 bg-white text-voiceup-navy hover:border-voiceup-periwinkle hover:scale-102'
-                  }`}
-                  onMouseEnter={() => setHoveredCapability(capability.id)}
-                >
-                  {/* Background Image with Blue Tint and Zoom Effect */}
-                  <div 
-                    className={`absolute inset-0 bg-cover bg-center transition-all duration-1000 ${
-                      hoveredCapability === capability.id || (!hoveredCapability && capability.id === 1)
-                        ? 'scale-110 animate-slow-zoom' : 'scale-100'
+              {capabilities.map((capability) => {
+                const isActive = hoveredCapability === capability.id || (!hoveredCapability && capability.id === 1);
+                return (
+                  <div
+                    key={capability.id}
+                    className={`relative p-5 sm:p-6 rounded-2xl border-2 cursor-pointer transition-all duration-300 overflow-hidden ${
+                      isActive
+                        ? 'border-voiceup-skyblue bg-voiceup-skyblue text-white shadow-xl scale-[1.02]'
+                        : 'border-gray-200 bg-white text-voiceup-navy hover:border-voiceup-periwinkle'
                     }`}
-                    style={{
-                      backgroundImage: `url(${capability.backgroundImage})`,
-                      opacity: 0.15
-                    }}
-                  />
-                  
-                  {/* Blue Tint Overlay */}
-                  <div 
-                    className={`absolute inset-0 bg-gradient-to-br from-blue-600/20 to-cyan-600/20 transition-opacity duration-500 ${
-                      hoveredCapability === capability.id || (!hoveredCapability && capability.id === 1)
-                        ? 'opacity-100' : 'opacity-60'
-                    }`}
-                  />
-                  
-                  {/* Content Overlay */}
-                  <div className="relative z-10 flex items-center space-x-4">
-                    <div className={`p-3 rounded-lg transition-all duration-300 ${
-                      hoveredCapability === capability.id || (!hoveredCapability && capability.id === 1)
-                        ? 'bg-white/20 scale-110'
-                        : 'bg-voiceup-skyblue text-white'
-                    }`}>
-                      {capability.icon}
+                    onMouseEnter={() => setHoveredCapability(capability.id)}
+                    onFocus={() => setHoveredCapability(capability.id)}
+                    tabIndex={0}
+                    role="button"
+                    aria-pressed={isActive}
+                  >
+                    <div
+                      className={`absolute inset-0 bg-cover bg-center transition-opacity duration-500 ${
+                        isActive && platformCapabilitiesInView ? 'animate-slow-zoom' : ''
+                      }`}
+                      style={{
+                        backgroundImage: `url(${capability.backgroundImage})`,
+                        opacity: 0.15
+                      }}
+                    />
+                    <div
+                      className={`absolute inset-0 bg-gradient-to-br from-blue-600/20 to-cyan-600/20 transition-opacity duration-300 ${
+                        isActive ? 'opacity-100' : 'opacity-60'
+                      }`}
+                    />
+                    <div className="relative z-10 flex items-center space-x-4">
+                      <div className={`p-3 rounded-lg transition-transform duration-300 ${
+                        isActive ? 'bg-white/20 scale-110' : 'bg-voiceup-skyblue text-white'
+                      }`}>
+                        {capability.icon}
+                      </div>
+                      <h3 className="text-lg sm:text-xl font-semibold">{capability.title}</h3>
                     </div>
-                    <h3 className="text-xl font-semibold">{capability.title}</h3>
                   </div>
-                </div>
-              ))}
+                );
+              })}
             </div>
 
-            {/* Right Side - Content Display with Zoom Animation */}
+            {/* Right Side - Content Display */}
             <div className="lg:sticky lg:top-24">
               {selectedCapability && (
                 <div className="bg-white rounded-2xl shadow-2xl overflow-hidden animate-slide-in-right">
-                  <div className="relative h-64 overflow-hidden">
-                    <img 
-                      src={selectedCapability.image} 
+                  <div className="relative h-56 sm:h-64 overflow-hidden">
+                    <img
+                      src={selectedCapability.image}
                       alt={selectedCapability.title}
-                      className="w-full h-full object-cover transition-transform duration-700 scale-105 animate-slow-zoom"
+                      loading="lazy"
+                      decoding="async"
+                      className={`w-full h-full object-cover ${platformCapabilitiesInView ? 'animate-slow-zoom' : ''}`}
                     />
                     <div className="absolute inset-0 bg-gradient-to-t from-voiceup-navy/60 to-transparent"></div>
                     <div className="absolute bottom-4 left-6 text-white">
                       <div className="p-3 bg-white/20 rounded-lg backdrop-blur-sm inline-block mb-2">
                         {selectedCapability.icon}
                       </div>
-                      <h3 className="text-2xl font-bold">{selectedCapability.title}</h3>
+                      <h3 className="text-xl sm:text-2xl font-bold">{selectedCapability.title}</h3>
                     </div>
                   </div>
-                  <div className="p-8 animate-slow-zoom">
-                    <p className="text-gray-600 text-lg leading-relaxed mb-6">
+                  <div className="p-6 sm:p-8">
+                    <p className="text-gray-600 text-base sm:text-lg leading-relaxed mb-6">
                       {selectedCapability.content}
                     </p>
-                    <Button 
+                    <Button
                       asChild
                       className="bg-voiceup-skyblue hover:bg-voiceup-periwinkle text-white rounded-full"
                     >
@@ -350,96 +320,50 @@ const Index = () => {
         </div>
       </section>
 
-      {/* Simplified Interactive Platform Experience */}
-      <section ref={circularMenuRef} className="py-32 bg-gradient-to-br from-gray-900 via-blue-900 to-purple-900 relative overflow-hidden min-h-screen">
+      {/* Interactive Platform Experience */}
+      <section
+        ref={circularMenuRef}
+        className="py-20 sm:py-32 bg-gradient-to-br from-gray-900 via-blue-900 to-purple-900 relative overflow-hidden"
+        data-active={circularMenuInView ? 'true' : 'false'}
+      >
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
-          <div className="text-center mb-20">
-            <h2 className="text-4xl lg:text-6xl font-bold text-white mb-6 bg-gradient-to-r from-white via-cyan-200 to-blue-200 bg-clip-text text-transparent">
+          <div className="text-center mb-16 sm:mb-20">
+            <h2 className="text-3xl sm:text-4xl lg:text-6xl font-bold text-white mb-6 bg-gradient-to-r from-white via-cyan-200 to-blue-200 bg-clip-text text-transparent">
               Interactive Platform Experience
             </h2>
-            <p className="text-xl text-white/90 max-w-3xl mx-auto">
+            <p className="text-base sm:text-xl text-white/90 max-w-3xl mx-auto">
               Experience our AI-powered voice technology through an immersive interactive journey
             </p>
           </div>
 
-          {/* Interactive Tech Showcase */}
-          <div className="grid md:grid-cols-3 gap-8">
-            {capabilities.slice(0, 3).map((capability, index) => (
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 lg:gap-8">
+            {capabilities.map((capability, index) => (
               <div
                 key={capability.id}
-                className="group relative bg-white/10 backdrop-blur-lg rounded-2xl p-8 border border-white/20 hover:border-cyan-400/50 transition-all duration-500 hover:scale-105 overflow-hidden"
+                className="group relative bg-white/10 backdrop-blur-lg rounded-2xl p-6 sm:p-8 border border-white/20 hover:border-cyan-400/50 transition-colors duration-300 overflow-hidden"
                 style={{
-                  animation: `fade-up 0.8s ease-out ${index * 0.2}s both`
+                  animation: circularMenuInView ? `fade-up 0.8s ease-out ${Math.min(index, 5) * 0.15}s both` : undefined
                 }}
               >
-                {/* Background Image with Blue Tint and Zoom Effect */}
-                <div 
-                  className="absolute inset-0 bg-cover bg-center opacity-20 group-hover:opacity-30 transition-all duration-1000 animate-slow-zoom"
-                  style={{
-                    backgroundImage: `url(${capability.backgroundImage})`
-                  }}
+                <div
+                  className={`absolute inset-0 bg-cover bg-center opacity-20 group-hover:opacity-30 transition-opacity duration-500 ${circularMenuInView ? 'animate-slow-zoom' : ''}`}
+                  style={{ backgroundImage: `url(${capability.backgroundImage})` }}
                 />
-                
-                {/* Blue Tint Overlay */}
-                <div className="absolute inset-0 bg-gradient-to-br from-blue-600/30 to-cyan-600/30 group-hover:opacity-100 transition-opacity duration-500" />
-                
-                <div className="absolute inset-0 bg-gradient-to-br from-cyan-400/10 to-blue-600/10 rounded-2xl opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
-                
+                <div className="absolute inset-0 bg-gradient-to-br from-blue-600/30 to-cyan-600/30 transition-opacity duration-300" />
+
                 <div className="relative z-10">
-                  <div className={`inline-flex p-4 rounded-xl bg-gradient-to-r ${capability.color} text-white mb-6 group-hover:scale-110 transition-transform duration-500`}>
+                  <div className={`inline-flex p-4 rounded-xl bg-gradient-to-r ${capability.color} text-white mb-6 transition-transform duration-300 group-hover:scale-110`}>
                     {capability.icon}
                   </div>
-                  
-                  <h3 className="text-2xl font-bold text-white mb-4 group-hover:text-cyan-300 transition-colors duration-300">
+
+                  <h3 className="text-xl sm:text-2xl font-bold text-white mb-4 group-hover:text-cyan-300 transition-colors duration-300">
                     {capability.title}
                   </h3>
-                  
-                  <p className="text-gray-300 leading-relaxed group-hover:text-white transition-colors duration-300">
+
+                  <p className="text-sm sm:text-base text-gray-300 leading-relaxed group-hover:text-white transition-colors duration-300">
                     {capability.content.slice(0, 120)}...
                   </p>
-                  
-                  <div className="mt-6 flex items-center text-cyan-400 group-hover:text-cyan-300 transition-colors duration-300">
-                    <span className="text-sm font-medium">Explore Feature</span>
-                    <ArrowDown className="ml-2 h-4 w-4 rotate-[-90deg] group-hover:translate-x-1 transition-transform duration-300" />
-                  </div>
-                </div>
-              </div>
-            ))}
-            
-            {capabilities.slice(3).map((capability, index) => (
-              <div
-                key={capability.id}
-                className="group relative bg-white/10 backdrop-blur-lg rounded-2xl p-8 border border-white/20 hover:border-cyan-400/50 transition-all duration-500 hover:scale-105 overflow-hidden"
-                style={{
-                  animation: `fade-up 0.8s ease-out ${(index + 3) * 0.2}s both`
-                }}
-              >
-                {/* Background Image with Blue Tint and Zoom Effect */}
-                <div 
-                  className="absolute inset-0 bg-cover bg-center opacity-20 group-hover:opacity-30 transition-all duration-1000 animate-slow-zoom"
-                  style={{
-                    backgroundImage: `url(${capability.backgroundImage})`
-                  }}
-                />
-                
-                {/* Blue Tint Overlay */}
-                <div className="absolute inset-0 bg-gradient-to-br from-blue-600/30 to-cyan-600/30 group-hover:opacity-100 transition-opacity duration-500" />
-                
-                <div className="absolute inset-0 bg-gradient-to-br from-cyan-400/10 to-blue-600/10 rounded-2xl opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
-                
-                <div className="relative z-10">
-                  <div className={`inline-flex p-4 rounded-xl bg-gradient-to-r ${capability.color} text-white mb-6 group-hover:scale-110 transition-transform duration-500`}>
-                    {capability.icon}
-                  </div>
-                  
-                  <h3 className="text-2xl font-bold text-white mb-4 group-hover:text-cyan-300 transition-colors duration-300">
-                    {capability.title}
-                  </h3>
-                  
-                  <p className="text-gray-300 leading-relaxed group-hover:text-white transition-colors duration-300">
-                    {capability.content.slice(0, 120)}...
-                  </p>
-                  
+
                   <div className="mt-6 flex items-center text-cyan-400 group-hover:text-cyan-300 transition-colors duration-300">
                     <span className="text-sm font-medium">Explore Feature</span>
                     <ArrowDown className="ml-2 h-4 w-4 rotate-[-90deg] group-hover:translate-x-1 transition-transform duration-300" />
@@ -450,228 +374,201 @@ const Index = () => {
           </div>
 
           {/* Central Tech Hub */}
-          <div className="mt-20 text-center">
-            <div className="inline-flex items-center justify-center w-32 h-32 bg-gradient-to-br from-cyan-500 to-blue-600 rounded-full shadow-2xl shadow-cyan-500/25 animate-pulse">
+          <div className="mt-16 sm:mt-20 text-center">
+            <div className={`inline-flex items-center justify-center w-28 h-28 sm:w-32 sm:h-32 bg-gradient-to-br from-cyan-500 to-blue-600 rounded-full shadow-2xl shadow-cyan-500/25 ${circularMenuInView ? 'animate-pulse' : ''}`}>
               <div className="text-white text-center">
-                <BrainCircuit className="h-12 w-12 mx-auto mb-2" />
+                <BrainCircuit className="h-10 w-10 sm:h-12 sm:w-12 mx-auto mb-2" />
                 <div className="text-sm font-bold">AI Core</div>
               </div>
             </div>
-            
-            <p className="mt-8 text-lg text-gray-300 max-w-2xl mx-auto">
+
+            <p className="mt-8 text-base sm:text-lg text-gray-300 max-w-2xl mx-auto px-4">
               All capabilities seamlessly integrated through our unified AI platform
             </p>
           </div>
         </div>
       </section>
 
-      {/* Enhanced Demo Video Section with Better Background Coverage */}
-      <section ref={videoSectionRef} className="py-20 bg-voiceup-navy relative overflow-hidden min-h-screen flex items-center">
-        {/* Enhanced Moving Background with Complete Coverage */}
-        <div className="absolute inset-0 pointer-events-none overflow-hidden">
-          {/* Primary Layer - Larger Coverage */}
-          <div 
-            className="absolute -inset-[600px] opacity-20"
-            style={{
-              backgroundImage: `url("data:image/svg+xml,%3Csvg width='100' height='100' viewBox='0 0 100 100' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M11 18c3.866 0 7-3.134 7-7s-3.134-7-7-7-7 3.134-7 7 3.134 7 7 7zm48 25c3.866 0 7-3.134 7-7s-3.134-7-7-7-7 3.134-7 7 3.134 7 7 7zm-43-7c1.657 0 3-1.343 3-3s-1.343-3-3-3-3 1.343-3 3 1.343 3 3 3zm63 31c1.657 0 3-1.343 3-3s-1.343-3-3-3-3 1.343-3 3 1.343 3 3 3zM34 90c1.657 0 3-1.343 3-3s-1.343-3-3-3-3 1.343-3 3 1.343 3 3 3zm56-76c1.657 0 3-1.343 3-3s-1.343-3-3-3-3 1.343-3 3 1.343 3 3 3zM12 86c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm28-65c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm23-11c2.76 0 5-2.24 5-5s-2.24-5-5-5-5 2.24-5 5 2.24 5 5 5zm-6 60c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm29 22c2.76 0 5-2.24 5-5s-2.24-5-5-5-5 2.24-5 5 2.24 5 5 5zM32 63c2.76 0 5-2.24 5-5s-2.24-5-5-5-5 2.24-5 5 2.24 5 5 5zm57-13c2.76 0 5-2.24 5-5s-2.24-5-5-5-5 2.24-5 5 2.24 5 5 5zm-9-21c1.105 0 2-.895 2-2s-.895-2-2-2-2 .895-2 2 .895 2 2 2zM60 91c1.105 0 2-.895 2-2s-.895-2-2-2-2 .895-2 2 .895 2 2 2zM35 41c1.105 0 2-.895 2-2s-.895-2-2-2-2 .895-2 2 .895 2 2 2zM12 60c1.105 0 2-.895 2-2s-.895-2-2-2-2 .895-2 2 .895 2 2 2z' fill='%2360A5FA' fill-opacity='0.4' fill-rule='evenodd'/%3E%3C/svg%3E")`,
-              animation: 'float 25s ease-in-out infinite reverse',
-              transform: 'rotate(45deg) scale(8)'
-            }}
-          />
-          {/* Secondary Layer - Different Pattern */}
-          <div 
-            className="absolute -inset-[700px] opacity-15"
-            style={{
-              backgroundImage: `url("data:image/svg+xml,%3Csvg width='80' height='80' viewBox='0 0 80 80' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='%2360A5FA' fill-opacity='0.3'%3E%3Ccircle cx='40' cy='40' r='2'/%3E%3Ccircle cx='20' cy='20' r='1'/%3E%3Ccircle cx='60' cy='20' r='1'/%3E%3Ccircle cx='20' cy='60' r='1'/%3E%3Ccircle cx='60' cy='60' r='1'/%3E%3C/g%3E%3C/svg%3E")`,
-              animation: 'float 30s ease-in-out infinite',
-              transform: 'rotate(-30deg) scale(9)'
-            }}
-          />
-          {/* Tertiary Layer - Largest Coverage */}
-          <div 
-            className="absolute -inset-[800px] opacity-10"
-            style={{
-              backgroundImage: `url("data:image/svg+xml,%3Csvg width='120' height='120' viewBox='0 0 120 120' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='%2360A5FA' fill-opacity='0.2'%3E%3Ccircle cx='60' cy='60' r='3'/%3E%3Ccircle cx='30' cy='30' r='1.5'/%3E%3Ccircle cx='90' cy='30' r='1.5'/%3E%3Ccircle cx='30' cy='90' r='1.5'/%3E%3Ccircle cx='90' cy='90' r='1.5'/%3E%3C/g%3E%3C/svg%3E")`,
-              animation: 'float 35s ease-in-out infinite reverse',
-              transform: 'rotate(15deg) scale(10)'
-            }}
-          />
-          {/* Fourth Layer - Maximum Coverage */}
-          <div 
-            className="absolute -inset-[900px] opacity-8"
-            style={{
-              backgroundImage: `url("data:image/svg+xml,%3Csvg width='200' height='200' viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M20 20h5v5h-5zm30 0h5v5h-5zm30 0h5v5h-5zm30 0h5v5h-5zm30 0h5v5h-5zm30 0h5v5h-5z' fill='%2360A5FA' fill-opacity='0.1'/%3E%3C/svg%3E")`,
-              animation: 'float 40s ease-in-out infinite',
-              transform: 'rotate(-45deg) scale(11)'
-            }}
-          />
-          {/* Fifth Layer - Ultra Coverage */}
-          <div 
-            className="absolute -inset-[1000px] opacity-6"
-            style={{
-              backgroundImage: `url("data:image/svg+xml,%3Csvg width='150' height='150' viewBox='0 0 150 150' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='%2360A5FA' fill-opacity='0.15'%3E%3Ccircle cx='75' cy='75' r='2'/%3E%3Ccircle cx='25' cy='25' r='1'/%3E%3Ccircle cx='125' cy='25' r='1'/%3E%3Ccircle cx='25' cy='125' r='1'/%3E%3Ccircle cx='125' cy='125' r='1'/%3E%3C/g%3E%3C/svg%3E")`,
-              animation: 'float 45s ease-in-out infinite reverse',
-              transform: 'rotate(60deg) scale(12)'
-            }}
-          />
-        </div>
+      {/* Demo Video Section */}
+      <section
+        ref={videoSectionRef}
+        className="py-16 sm:py-20 bg-voiceup-navy relative overflow-hidden flex items-center"
+        data-active={videoInView ? 'true' : 'false'}
+      >
+        {/* Two lightweight pattern layers (was five) — kept conditional on view to save GPU */}
+        {videoInView && (
+          <div className="absolute inset-0 pointer-events-none overflow-hidden" aria-hidden="true">
+            <div
+              className="absolute -inset-[400px] opacity-15 animate-bg-float-slow"
+              style={{
+                backgroundImage: `url("data:image/svg+xml,%3Csvg width='100' height='100' viewBox='0 0 100 100' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M11 18c3.866 0 7-3.134 7-7s-3.134-7-7-7-7 3.134-7 7 3.134 7 7 7zm48 25c3.866 0 7-3.134 7-7s-3.134-7-7-7-7 3.134-7 7 3.134 7 7 7zm-43-7c1.657 0 3-1.343 3-3s-1.343-3-3-3-3 1.343-3 3 1.343 3 3 3zm63 31c1.657 0 3-1.343 3-3s-1.343-3-3-3-3 1.343-3 3 1.343 3 3 3zM34 90c1.657 0 3-1.343 3-3s-1.343-3-3-3-3 1.343-3 3 1.343 3 3 3z' fill='%2360A5FA' fill-opacity='0.4' fill-rule='evenodd'/%3E%3C/svg%3E")`,
+                transform: 'rotate(45deg) scale(6)'
+              }}
+            />
+            <div
+              className="absolute -inset-[500px] opacity-10 animate-bg-float-slower"
+              style={{
+                backgroundImage: `url("data:image/svg+xml,%3Csvg width='80' height='80' viewBox='0 0 80 80' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='%2360A5FA' fill-opacity='0.3'%3E%3Ccircle cx='40' cy='40' r='2'/%3E%3Ccircle cx='20' cy='20' r='1'/%3E%3Ccircle cx='60' cy='20' r='1'/%3E%3Ccircle cx='20' cy='60' r='1'/%3E%3Ccircle cx='60' cy='60' r='1'/%3E%3C/g%3E%3C/svg%3E")`,
+                transform: 'rotate(-30deg) scale(7)'
+              }}
+            />
+          </div>
+        )}
 
         <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 text-center relative z-10 w-full">
-          <div className={`transition-all duration-1000 mb-12 ${videoInView ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-10'}`}>
-            <h2 className="text-4xl lg:text-5xl font-bold text-white mb-6">
+          <div className={`transition-all duration-700 mb-12 ${videoInView ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-10'}`}>
+            <h2 className="text-3xl sm:text-4xl lg:text-5xl font-bold text-white mb-6">
               See How Enterprises Use VoiceUp
             </h2>
-            <p className="text-xl text-gray-300 max-w-3xl mx-auto">
+            <p className="text-base sm:text-xl text-gray-300 max-w-3xl mx-auto">
               Watch real-world implementations and discover the transformative impact of our voice automation platform
             </p>
           </div>
-          
-          <div 
-            className="relative transition-all duration-700 ease-out mx-auto"
-            style={{ 
-              transform: `scale(${videoScale})`,
-              maxWidth: '900px'
-            }}
+
+          <div
+            ref={videoFrameRef}
+            className="relative mx-auto will-change-transform video-scaler"
+            style={{ maxWidth: '900px' }}
           >
-            {/* Enhanced Animated Border */}
             <div className="relative rounded-3xl overflow-hidden shadow-2xl">
-              <div className="absolute inset-0 bg-gradient-to-r from-voiceup-skyblue via-voiceup-periwinkle to-voiceup-lavender p-2 rounded-3xl">
-                <div className="absolute inset-0 bg-gradient-to-r from-voiceup-skyblue via-voiceup-periwinkle to-voiceup-lavender rounded-3xl animate-spin" style={{ animationDuration: '10s' }}></div>
-                <div className="bg-voiceup-navy rounded-2xl h-full relative z-10"></div>
-              </div>
-              
-              {/* Video Container */}
-              <div className="relative bg-gradient-to-br from-voiceup-skyblue to-voiceup-periwinkle p-3 rounded-3xl">
+              <div className="relative bg-gradient-to-br from-voiceup-skyblue to-voiceup-periwinkle p-2 sm:p-3 rounded-3xl">
                 <div className="bg-gradient-to-br from-gray-900 to-voiceup-navy rounded-2xl overflow-hidden">
                   <div className="aspect-video relative overflow-hidden">
-                    {/* Dynamic Moving Thumbnail - AI Related */}
                     <div className="absolute inset-0 bg-gradient-to-br from-blue-900 via-purple-900 to-indigo-900">
-                      {/* Moving Network Visualization */}
                       <div className="absolute inset-0 flex items-center justify-center">
                         <div className="relative w-full h-full">
                           {/* Central AI Brain */}
                           <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2">
-                            <div className="w-24 h-24 bg-gradient-to-r from-cyan-400 to-purple-500 rounded-full flex items-center justify-center animate-pulse shadow-lg">
-                              <Bot className="h-12 w-12 text-white" />
+                            <div className={`w-20 h-20 sm:w-24 sm:h-24 bg-gradient-to-r from-cyan-400 to-purple-500 rounded-full flex items-center justify-center shadow-lg ${videoInView ? 'animate-pulse' : ''}`}>
+                              <Bot className="h-10 w-10 sm:h-12 sm:w-12 text-white" />
                             </div>
                           </div>
-                          
-                          {/* Orbiting Data Points */}
-                          {[...Array(8)].map((_, i) => (
-                            <div
-                              key={`orbit-${i}`}
-                              className="absolute w-4 h-4 bg-cyan-400 rounded-full animate-pulse"
-                              style={{
-                                left: `calc(50% + ${Math.cos((i * 45 * Math.PI) / 180) * 120}px - 8px)`,
-                                top: `calc(50% + ${Math.sin((i * 45 * Math.PI) / 180) * 120}px - 8px)`,
-                                animation: `orbit ${8 + i}s linear infinite`,
-                                animationDelay: `${i * 0.5}s`
-                              }}
-                            />
-                          ))}
-                          
-                          {/* Floating Data Streams */}
-                          {[...Array(12)].map((_, i) => (
+
+                          {/* Orbiting Data Points (6, was 8). Pause when section off-screen. */}
+                          {videoInView && [...Array(6)].map((_, i) => {
+                            const angle = (i * 60 * Math.PI) / 180;
+                            return (
+                              <div
+                                key={`orbit-${i}`}
+                                className="absolute w-3 h-3 sm:w-4 sm:h-4 bg-cyan-400 rounded-full"
+                                style={{
+                                  left: `calc(50% + ${Math.cos(angle) * 100}px - 8px)`,
+                                  top: `calc(50% + ${Math.sin(angle) * 100}px - 8px)`,
+                                  animation: `orbit ${10 + i}s linear infinite`,
+                                  animationDelay: `${i * 0.4}s`
+                                }}
+                              />
+                            );
+                          })}
+
+                          {/* Data Streams (8, was 12). Deterministic delays — no Math.random. */}
+                          {videoInView && [...Array(8)].map((_, i) => (
                             <div
                               key={`stream-${i}`}
-                              className="absolute w-1 h-12 bg-gradient-to-b from-green-400 to-transparent rounded-full"
+                              className="absolute w-1 h-10 bg-gradient-to-b from-green-400 to-transparent rounded-full"
                               style={{
-                                left: `${10 + i * 7}%`,
-                                top: `${20 + (i % 3) * 25}%`,
-                                animation: `float ${2 + Math.random() * 2}s ease-in-out infinite`,
-                                animationDelay: `${i * 0.1}s`
+                                left: `${12 + i * 10}%`,
+                                top: `${22 + (i % 3) * 22}%`,
+                                animation: `float ${3 + (i % 3)}s ease-in-out infinite`,
+                                animationDelay: `${i * 0.15}s`
                               }}
                             />
                           ))}
-                          
-                          {/* Pulsing Connection Lines */}
-                          <svg className="absolute inset-0 w-full h-full opacity-60">
-                            {[...Array(6)].map((_, i) => (
-                              <line
-                                key={`line-${i}`}
-                                x1="50%"
-                                y1="50%"
-                                x2={`${50 + Math.cos((i * 60 * Math.PI) / 180) * 30}%`}
-                                y2={`${50 + Math.sin((i * 60 * Math.PI) / 180) * 30}%`}
-                                stroke="rgba(99, 102, 241, 0.6)"
-                                strokeWidth="2"
-                                strokeDasharray="5,5"
-                                className="animate-pulse"
-                                style={{ animationDelay: `${i * 0.3}s` }}
-                              />
-                            ))}
-                          </svg>
+
+                          {/* Pulsing Connection Lines (4, was 6) */}
+                          {videoInView && (
+                            <svg className="absolute inset-0 w-full h-full opacity-60" aria-hidden="true">
+                              {[...Array(4)].map((_, i) => (
+                                <line
+                                  key={`line-${i}`}
+                                  x1="50%"
+                                  y1="50%"
+                                  x2={`${50 + Math.cos((i * 90 * Math.PI) / 180) * 30}%`}
+                                  y2={`${50 + Math.sin((i * 90 * Math.PI) / 180) * 30}%`}
+                                  stroke="rgba(99, 102, 241, 0.6)"
+                                  strokeWidth="2"
+                                  strokeDasharray="5,5"
+                                  className="animate-pulse"
+                                  style={{ animationDelay: `${i * 0.4}s` }}
+                                />
+                              ))}
+                            </svg>
+                          )}
                         </div>
                       </div>
-                      
-                      {/* Voice Waveform Animation */}
-                      <div className="absolute bottom-20 left-8 right-8 flex items-end justify-center space-x-1">
-                        {[...Array(25)].map((_, i) => (
-                          <div
-                            key={`wave-${i}`}
-                            className="bg-gradient-to-t from-voiceup-skyblue to-cyan-400 rounded-t-sm"
-                            style={{
-                              width: '3px',
-                              height: `${8 + Math.sin(i * 0.5) * 20 + Math.random() * 15}px`,
-                              animation: `pulse ${0.8 + Math.random() * 0.4}s ease-in-out infinite`,
-                              animationDelay: `${i * 0.05}s`
-                            }}
-                          />
-                        ))}
-                      </div>
-                      
+
+                      {/* Voice Waveform — 16 bars (was 25), deterministic heights */}
+                      {videoInView && (
+                        <div className="absolute bottom-16 sm:bottom-20 left-4 sm:left-8 right-4 sm:right-8 flex items-end justify-center space-x-1">
+                          {[...Array(16)].map((_, i) => {
+                            const h = 10 + Math.abs(Math.sin(i * 0.6)) * 22;
+                            return (
+                              <div
+                                key={`wave-${i}`}
+                                className="bg-gradient-to-t from-voiceup-skyblue to-cyan-400 rounded-t-sm"
+                                style={{
+                                  width: '3px',
+                                  height: `${h}px`,
+                                  animation: `pulse ${1 + (i % 4) * 0.2}s ease-in-out infinite`,
+                                  animationDelay: `${i * 0.06}s`
+                                }}
+                              />
+                            );
+                          })}
+                        </div>
+                      )}
+
                       {/* Floating AI indicators */}
-                      <div className="absolute top-6 left-6 animate-fade-in">
+                      <div className="absolute top-4 sm:top-6 left-4 sm:left-6 animate-fade-in">
                         <div className="bg-black/60 rounded-lg p-2 backdrop-blur-sm text-cyan-300 text-xs">
                           <Mic className="h-4 w-4 inline mr-1" />
                           Real-time Processing
                         </div>
                       </div>
-                      
-                      <div className="absolute top-6 right-6 animate-fade-in" style={{ animationDelay: '1s' }}>
+
+                      <div className="absolute top-4 sm:top-6 right-4 sm:right-6 animate-fade-in" style={{ animationDelay: '0.6s' }}>
                         <div className="bg-black/60 rounded-lg p-2 backdrop-blur-sm text-green-300 text-xs">
                           <BarChart3 className="h-4 w-4 inline mr-1" />
                           AI Analytics
                         </div>
                       </div>
-                      
-                      <div className="absolute bottom-32 right-6 animate-fade-in" style={{ animationDelay: '2s' }}>
+
+                      <div className="absolute bottom-24 sm:bottom-32 right-4 sm:right-6 animate-fade-in" style={{ animationDelay: '1.2s' }}>
                         <div className="bg-black/60 rounded-lg p-2 backdrop-blur-sm text-purple-300 text-xs">
                           <Bot className="h-4 w-4 inline mr-1" />
                           Neural Network
                         </div>
                       </div>
                     </div>
-                    
-                    {/* Enhanced Play Button Overlay */}
+
+                    {/* Play button overlay */}
                     <div className="absolute inset-0 flex items-center justify-center bg-black/20 hover:bg-black/30 transition-colors duration-300 cursor-pointer group">
                       <div className="relative">
-                        <div className="w-24 h-24 bg-white/90 rounded-full flex items-center justify-center shadow-2xl group-hover:scale-110 transition-transform duration-300 relative z-10">
-                          <svg className="w-10 h-10 text-voiceup-navy ml-1" fill="currentColor" viewBox="0 0 24 24">
-                            <path d="M8 5v14l11-7z"/>
+                        <div className="w-20 h-20 sm:w-24 sm:h-24 bg-white/90 rounded-full flex items-center justify-center shadow-2xl group-hover:scale-110 transition-transform duration-300 relative z-10">
+                          <svg className="w-9 h-9 sm:w-10 sm:h-10 text-voiceup-navy ml-1" fill="currentColor" viewBox="0 0 24 24">
+                            <path d="M8 5v14l11-7z" />
                           </svg>
                         </div>
-                        <div className="absolute inset-0 w-24 h-24 border-4 border-white/50 rounded-full animate-ping"></div>
-                        <div className="absolute inset-0 w-24 h-24 border-2 border-cyan-400/50 rounded-full animate-ping" style={{ animationDelay: '0.5s' }}></div>
+                        {videoInView && (
+                          <>
+                            <div className="absolute inset-0 w-20 h-20 sm:w-24 sm:h-24 border-4 border-white/50 rounded-full animate-ping"></div>
+                            <div className="absolute inset-0 w-20 h-20 sm:w-24 sm:h-24 border-2 border-cyan-400/50 rounded-full animate-ping" style={{ animationDelay: '0.5s' }}></div>
+                          </>
+                        )}
                       </div>
                     </div>
-                    
-                    {/* Enhanced progress bar mockup */}
-                    <div className="absolute bottom-4 left-4 right-4 bg-black/60 rounded-lg p-3 backdrop-blur-sm">
-                      <div className="flex items-center space-x-3 text-white text-sm">
-                        <div className="w-3 h-3 bg-green-400 rounded-full animate-pulse"></div>
+
+                    {/* Progress bar mockup */}
+                    <div className="absolute bottom-3 left-3 right-3 sm:bottom-4 sm:left-4 sm:right-4 bg-black/60 rounded-lg p-2 sm:p-3 backdrop-blur-sm">
+                      <div className="flex items-center space-x-2 sm:space-x-3 text-white text-xs sm:text-sm">
+                        <div className="w-2 h-2 sm:w-3 sm:h-3 bg-green-400 rounded-full animate-pulse"></div>
                         <span className="font-mono">2:05</span>
-                        <div className="flex-1 bg-gray-600 rounded-full h-2 relative overflow-hidden">
-                          <div className="bg-gradient-to-r from-voiceup-skyblue to-green-400 h-2 rounded-full w-1/3 relative">
+                        <div className="flex-1 bg-gray-600 rounded-full h-1.5 sm:h-2 relative overflow-hidden">
+                          <div className="bg-gradient-to-r from-voiceup-skyblue to-green-400 h-full rounded-full w-1/3 relative">
                             <div className="absolute inset-0 bg-white/30 rounded-full animate-pulse"></div>
                           </div>
                         </div>
                         <span className="font-mono">5:30</span>
-                        <div className="flex space-x-1">
-                          <div className="w-1 h-1 bg-white rounded-full animate-pulse"></div>
-                          <div className="w-1 h-1 bg-white rounded-full animate-pulse" style={{ animationDelay: '0.5s' }}></div>
-                          <div className="w-1 h-1 bg-white rounded-full animate-pulse" style={{ animationDelay: '1s' }}></div>
-                        </div>
                       </div>
                     </div>
                   </div>
@@ -683,64 +580,6 @@ const Index = () => {
       </section>
 
       <Footer />
-      
-      <style>{`
-        @keyframes float {
-          0%, 100% { transform: translateY(0px) rotate(0deg); }
-          50% { transform: translateY(-20px) rotate(180deg); }
-        }
-        
-        @keyframes bounce-down {
-          0%, 20%, 50%, 80%, 100% { transform: translateY(0); }
-          40% { transform: translateY(10px); }
-          60% { transform: translateY(5px); }
-        }
-        
-        @keyframes scale-in {
-          0% { transform: scale(0) rotate(-180deg); opacity: 0; }
-          50% { transform: scale(0.5) rotate(-90deg); opacity: 0.5; }
-          100% { transform: scale(1) rotate(0deg); opacity: 1; }
-        }
-        
-        @keyframes orbit {
-          0% { transform: rotate(0deg) translateX(120px) rotate(0deg); }
-          100% { transform: rotate(360deg) translateX(120px) rotate(-360deg); }
-        }
-        
-        @keyframes grid-move {
-          0% { transform: translate(0, 0); }
-          100% { transform: translate(50px, 50px); }
-        }
-        
-        @keyframes float-tech {
-          0%, 100% { transform: translateY(0px) translateX(0px); }
-          25% { transform: translateY(-10px) translateX(5px); }
-          50% { transform: translateY(5px) translateX(-3px); }
-          75% { transform: translateY(-5px) translateX(3px); }
-        }
-        
-        @keyframes fade-up {
-          0% { opacity: 0; transform: translateY(30px); }
-          100% { opacity: 1; transform: translateY(0); }
-        }
-        
-        @keyframes slow-zoom {
-          0%, 100% { transform: scale(1.05); }
-          50% { transform: scale(1.1); }
-        }
-        
-        .animate-bounce-down {
-          animation: bounce-down 2s infinite;
-        }
-        
-        .animate-scale-in {
-          animation: scale-in 0.8s ease-out forwards;
-        }
-        
-        .animate-slow-zoom {
-          animation: slow-zoom 8s ease-in-out infinite;
-        }
-      `}</style>
     </div>
   );
 };

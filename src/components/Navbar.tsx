@@ -1,7 +1,6 @@
-
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { Link, useLocation } from 'react-router-dom';
-import { ChevronDown, Menu, X, Mic } from 'lucide-react';
+import { ChevronDown, Menu, X } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 
 const Navbar = () => {
@@ -10,71 +9,114 @@ const Navbar = () => {
   const [activeDropdown, setActiveDropdown] = useState<string | null>(null);
   const location = useLocation();
   const isHomepage = location.pathname === '/';
+  const mobileMenuButtonRef = useRef<HTMLButtonElement>(null);
 
+  // Throttled scroll listener (rAF) — keeps the navbar styling responsive without
+  // re-rendering on every scroll event.
   useEffect(() => {
-    const handleScroll = () => {
+    let ticking = false;
+    const update = () => {
+      ticking = false;
       setIsScrolled(window.scrollY > 50);
     };
-
-    window.addEventListener('scroll', handleScroll);
-    return () => window.removeEventListener('scroll', handleScroll);
+    const onScroll = () => {
+      if (!ticking) {
+        ticking = true;
+        requestAnimationFrame(update);
+      }
+    };
+    update();
+    window.addEventListener('scroll', onScroll, { passive: true });
+    return () => window.removeEventListener('scroll', onScroll);
   }, []);
+
+  // Close mobile menu on route change so it doesn't persist across navigation.
+  useEffect(() => {
+    setIsMobileMenuOpen(false);
+    setActiveDropdown(null);
+  }, [location.pathname]);
+
+  // Close mobile menu on Escape and lock body scroll while open.
+  useEffect(() => {
+    if (!isMobileMenuOpen) return;
+    const onKey = (e: KeyboardEvent) => {
+      if (e.key === 'Escape') {
+        setIsMobileMenuOpen(false);
+        mobileMenuButtonRef.current?.focus();
+      }
+    };
+    const prevOverflow = document.body.style.overflow;
+    document.body.style.overflow = 'hidden';
+    window.addEventListener('keydown', onKey);
+    return () => {
+      document.body.style.overflow = prevOverflow;
+      window.removeEventListener('keydown', onKey);
+    };
+  }, [isMobileMenuOpen]);
 
   const scrollToTop = () => {
     window.scrollTo({ top: 0, behavior: 'smooth' });
   };
 
   const navbarClasses = `fixed top-0 left-0 right-0 z-50 transition-all duration-300 ${
-    isScrolled || !isHomepage 
-      ? 'navbar-blur border-b border-gray-200 shadow-sm' 
+    isScrolled || !isHomepage
+      ? 'navbar-blur border-b border-gray-200 shadow-sm'
       : 'bg-transparent'
   }`;
 
   const textClasses = `transition-colors duration-300 ${
-    isScrolled || !isHomepage 
-      ? 'text-voiceup-navy' 
+    isScrolled || !isHomepage
+      ? 'text-voiceup-navy'
       : 'text-white'
   }`;
 
   return (
-    <nav className={navbarClasses}>
+    <nav className={navbarClasses} aria-label="Main navigation">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex justify-between items-center h-16">
           {/* Logo */}
-          <Link 
-            to="/" 
+          <Link
+            to="/"
             className="flex items-center space-x-2 cursor-pointer"
             onClick={scrollToTop}
+            aria-label="VoiceUp home"
           >
-            <img 
-              src="/lovable-uploads/771100c5-8633-4c2a-adc9-43008ea382e0.png" 
-              alt="VoiceUp Logo" 
+            <img
+              src="/voiceup-logo.png"
+              alt=""
+              width={32}
+              height={32}
               className="h-8 w-8"
+              decoding="async"
             />
             <span className={`text-xl font-bold ${textClasses}`}>VoiceUp</span>
           </Link>
 
           {/* Desktop Menu */}
           <div className="hidden lg:flex items-center space-x-8">
-            <Link 
-              to="/solutions" 
+            <Link
+              to="/solutions"
               className={`hover:text-voiceup-skyblue transition-colors ${textClasses}`}
             >
               Solutions
             </Link>
 
             {/* Partners Dropdown */}
-            <div 
+            <div
               className="relative group"
               onMouseEnter={() => setActiveDropdown('partners')}
               onMouseLeave={() => setActiveDropdown(null)}
             >
-              <button className={`flex items-center space-x-1 hover:text-voiceup-skyblue transition-colors ${textClasses}`}>
+              <button
+                className={`flex items-center space-x-1 hover:text-voiceup-skyblue transition-colors ${textClasses}`}
+                aria-haspopup="true"
+                aria-expanded={activeDropdown === 'partners'}
+              >
                 <span>Partners</span>
                 <ChevronDown className="h-4 w-4" />
               </button>
-              
-              <div className={`absolute top-full left-0 mt-2 w-96 bg-white rounded-2xl shadow-2xl border border-gray-100 p-6 transition-all duration-300 ${
+
+              <div className={`absolute top-full left-0 mt-2 w-[min(24rem,calc(100vw-2rem))] bg-white rounded-2xl shadow-2xl border border-gray-100 p-6 transition-all duration-300 ${
                 activeDropdown === 'partners' ? 'opacity-100 visible transform translate-y-0' : 'opacity-0 invisible transform -translate-y-2'
               }`}>
                 <div className="grid grid-cols-2 gap-6">
@@ -107,16 +149,20 @@ const Navbar = () => {
             </div>
 
             {/* Resources Dropdown */}
-            <div 
+            <div
               className="relative group"
               onMouseEnter={() => setActiveDropdown('resources')}
               onMouseLeave={() => setActiveDropdown(null)}
             >
-              <button className={`flex items-center space-x-1 hover:text-voiceup-skyblue transition-colors ${textClasses}`}>
+              <button
+                className={`flex items-center space-x-1 hover:text-voiceup-skyblue transition-colors ${textClasses}`}
+                aria-haspopup="true"
+                aria-expanded={activeDropdown === 'resources'}
+              >
                 <span>Resources</span>
                 <ChevronDown className="h-4 w-4" />
               </button>
-              
+
               <div className={`absolute top-full left-0 mt-2 w-64 bg-white rounded-2xl shadow-2xl border border-gray-100 p-6 transition-all duration-300 ${
                 activeDropdown === 'resources' ? 'opacity-100 visible transform translate-y-0' : 'opacity-0 invisible transform -translate-y-2'
               }`}>
@@ -144,16 +190,20 @@ const Navbar = () => {
             </div>
 
             {/* Clients Dropdown */}
-            <div 
+            <div
               className="relative group"
               onMouseEnter={() => setActiveDropdown('clients')}
               onMouseLeave={() => setActiveDropdown(null)}
             >
-              <button className={`flex items-center space-x-1 hover:text-voiceup-skyblue transition-colors ${textClasses}`}>
+              <button
+                className={`flex items-center space-x-1 hover:text-voiceup-skyblue transition-colors ${textClasses}`}
+                aria-haspopup="true"
+                aria-expanded={activeDropdown === 'clients'}
+              >
                 <span>Clients</span>
                 <ChevronDown className="h-4 w-4" />
               </button>
-              
+
               <div className={`absolute top-full left-0 mt-2 w-56 bg-white rounded-2xl shadow-2xl border border-gray-100 p-6 transition-all duration-300 ${
                 activeDropdown === 'clients' ? 'opacity-100 visible transform translate-y-0' : 'opacity-0 invisible transform -translate-y-2'
               }`}>
@@ -174,7 +224,7 @@ const Navbar = () => {
               </div>
             </div>
 
-            <Button 
+            <Button
               asChild
               className="bg-voiceup-skyblue hover:bg-voiceup-periwinkle text-white px-6 py-2 rounded-full shadow-lg hover:shadow-xl transition-all duration-300"
             >
@@ -184,8 +234,13 @@ const Navbar = () => {
 
           {/* Mobile Menu Button */}
           <button
+            ref={mobileMenuButtonRef}
+            type="button"
             className={`lg:hidden p-2 ${textClasses}`}
-            onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
+            onClick={() => setIsMobileMenuOpen((v) => !v)}
+            aria-expanded={isMobileMenuOpen}
+            aria-controls="mobile-menu"
+            aria-label={isMobileMenuOpen ? 'Close menu' : 'Open menu'}
           >
             {isMobileMenuOpen ? <X className="h-6 w-6" /> : <Menu className="h-6 w-6" />}
           </button>
@@ -193,7 +248,7 @@ const Navbar = () => {
 
         {/* Mobile Menu */}
         {isMobileMenuOpen && (
-          <div className="lg:hidden bg-white border-t border-gray-200 animate-fade-in">
+          <div id="mobile-menu" className="lg:hidden bg-white border-t border-gray-200 animate-fade-in max-h-[calc(100vh-4rem)] overflow-y-auto">
             <div className="px-4 py-6 space-y-4">
               <Link to="/solutions" className="block text-voiceup-navy hover:text-voiceup-skyblue">Solutions</Link>
               <div className="space-y-2">
